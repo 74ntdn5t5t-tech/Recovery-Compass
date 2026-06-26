@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="color-scheme" content="light">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="Recovery Compass">
+        <link rel="manifest" href="manifest.json">
+        <link rel="apple-touch-icon" href="icon.svg">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>body{background-color:#f4f8fb;}</style>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+        <div class="header">
+            <h1>Über uns</h1>
+            <p>Wer steckt hinter Recovery Compass?</p>
+        </div>
+
+        <div class="card">
+            <h3>Das Projekt</h3>
+            <p class="placeholder-text">Inhalt folgt.</p>
+        </div>
+
+        <div class="card">
+            <h3>Quellen & Literatur</h3>
+            <p class="placeholder-text">Inhalt folgt.</p>
+        </div>
+
+        <div class="card">
+            <h3>💾 Daten sichern</h3>
+            <p style="font-size: 13px; color: #888; margin: 0 0 14px 0;">Lade eine Sicherungskopie deiner App-Daten herunter. So gehen keine Einträge verloren, wenn du das Gerät wechselst.</p>
+            <button class="button-secondary" onclick="exportiereAlles()" style="width: 100%; margin-bottom: 10px;">⬇️ Daten herunterladen</button>
+            <p id="export-status" style="font-size: 12px; color: #4ac98a; text-align: center; display: none; margin: 0;">Datei wurde gespeichert ✓</p>
+        </div>
+
+        <div class="card" style="text-align: center;">
+            <p style="font-size: 13px; color: #888; margin: 0 0 12px 0;">App-Einführung nochmals anschauen?</p>
+            <button class="button-secondary" onclick="tourWiederholen()" style="width: 100%;">🧭 Onboarding wiederholen</button>
+        </div>
+
+        <script>
+            function tourWiederholen() {
+                localStorage.removeItem('onboardingDone');
+                window.location.href = 'index.html';
+            }
+
+            function exportiereAlles() {
+                const daten = {};
+                const schluessel = [
+                    'onboardingDone', 'setupDone', 'fruehwarnzeichen', 'eintraege',
+                    'medikamente', 'krisenKontakte', 'wasHilftMir'
+                ];
+                // Medikamenten-Einnahmen (einnahme_YYYY-MM-DD)
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k.startsWith('einnahme_')) schluessel.push(k);
+                }
+                schluessel.forEach(k => {
+                    const v = localStorage.getItem(k);
+                    if (v !== null) {
+                        try { daten[k] = JSON.parse(v); }
+                        catch(e) { daten[k] = v; }
+                    }
+                });
+
+                const datum = new Date().toISOString().slice(0, 10);
+                const blob = new Blob(
+                    [JSON.stringify({ exportiert_am: datum, daten }, null, 2)],
+                    { type: 'application/json' }
+                );
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'recovery-compass-backup-' + datum + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+
+                const status = document.getElementById('export-status');
+                status.style.display = 'block';
+                setTimeout(() => status.style.display = 'none', 3000);
+            }
+        </script>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item active"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></a>
+            <a href="verlauf.html" class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">Verlauf</span></a>
+            <a href="wissen.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-label">Wissen</span></a>
+            <a href="medikamente.html" class="nav-item"><span class="nav-icon">💊</span><span class="nav-label">Medikamente</span></a>
+            <a href="krisenplan.html" class="nav-item"><span class="nav-icon">🆘</span><span class="nav-label">Krisenplan</span></a>
+        </nav>
+
+    </body>
+</html>

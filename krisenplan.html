@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="color-scheme" content="light">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="Recovery Compass">
+        <link rel="manifest" href="manifest.json">
+        <link rel="apple-touch-icon" href="icon.svg">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>body{background-color:#f4f8fb;}</style>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+        <!-- Kontakt hinzufügen Modal -->
+        <div id="kontakt-modal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <h2 id="kontakt-modal-titel">Kontakt hinzufügen</h2>
+
+                <label class="datum-label">Name *</label>
+                <input type="text" id="kontakt-name" placeholder="z.B. Dr. Muster" class="text-input med-input">
+
+                <label class="datum-label">Beziehung</label>
+                <input type="text" id="kontakt-beziehung" placeholder="z.B. Psychiaterin, Mutter" class="text-input med-input">
+
+                <label class="datum-label">Telefonnummer</label>
+                <input type="tel" id="kontakt-telefon" placeholder="z.B. 044 123 45 67" class="text-input med-input">
+
+                <button onclick="saveKontakt()" class="button-primary">Speichern</button>
+                <button onclick="closeModal('kontakt-modal')" class="button-cancel">Abbrechen</button>
+            </div>
+        </div>
+
+        <div class="header">
+            <h1>Hilfe & Krisenplan</h1>
+            <p>Dein persönlicher Plan für schwierige Momente.</p>
+        </div>
+
+        <!-- Notrufnummern -->
+        <div class="card">
+            <h3>🚨 Notrufnummern</h3>
+            <div class="notruf-liste">
+
+                <a href="tel:144" class="notruf-item">
+                    <div class="notruf-nummer">144</div>
+                    <div class="notruf-info">
+                        <div class="notruf-name">Sanitätsnotruf</div>
+                        <div class="notruf-desc">Bei akuter körperlicher Gefährdung oder Notfall</div>
+                    </div>
+                    <span class="notruf-call">📞</span>
+                </a>
+
+                <a href="tel:143" class="notruf-item">
+                    <div class="notruf-nummer">143</div>
+                    <div class="notruf-info">
+                        <div class="notruf-name">Die Dargebotene Hand</div>
+                        <div class="notruf-desc">Wenn Gedanken kreisen, du Einsamkeit spürst oder einfach reden möchtest – 24h, anonym</div>
+                    </div>
+                    <span class="notruf-call">📞</span>
+                </a>
+
+                <a href="tel:147" class="notruf-item">
+                    <div class="notruf-nummer">147</div>
+                    <div class="notruf-info">
+                        <div class="notruf-name">Pro Juventute</div>
+                        <div class="notruf-desc">Für junge Menschen in belastenden Situationen – 24h, kostenlos</div>
+                    </div>
+                    <span class="notruf-call">📞</span>
+                </a>
+
+                <a href="tel:0443841111" class="notruf-item">
+                    <div class="notruf-nummer kp-num-sm">044 384 11 11</div>
+                    <div class="notruf-info">
+                        <div class="notruf-name">PUK Zürich</div>
+                        <div class="notruf-desc">Psychiatrische Notaufnahme Kanton Zürich</div>
+                    </div>
+                    <span class="notruf-call">📞</span>
+                </a>
+
+                <a href="tel:0628381111" class="notruf-item">
+                    <div class="notruf-nummer kp-num-sm">062 838 11 11</div>
+                    <div class="notruf-info">
+                        <div class="notruf-name">PDAG Aargau</div>
+                        <div class="notruf-desc">Psychiatrische Notaufnahme Kanton Aargau</div>
+                    </div>
+                    <span class="notruf-call">📞</span>
+                </a>
+
+                <a href="tel:0848800858" class="notruf-item">
+                    <div class="notruf-nummer kp-num-sm">0848 800 858</div>
+                    <div class="notruf-info">
+                        <div class="notruf-name">Pro Mente Sana</div>
+                        <div class="notruf-desc">Beratung zu psychischer Gesundheit und Anlaufstellen</div>
+                    </div>
+                    <span class="notruf-call">📞</span>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- Frühwarnzeichen -->
+        <div class="card">
+            <h3>⚠️ Meine Frühwarnzeichen</h3>
+            <p style="font-size: 13px; color: #888; margin: 0 0 14px 0;">Diese Zeichen können darauf hinweisen, dass ich Unterstützung brauche:</p>
+            <div id="kp-fruehwarnzeichen" class="fw-tag-container">
+                <p class="placeholder-text" style="padding: 8px 0; text-align: left;">Noch keine Frühwarnzeichen eingerichtet.<br>Gehe zu „Mein Verlauf", um sie einzurichten.</p>
+            </div>
+        </div>
+
+        <!-- Was hilft mir -->
+        <div class="card">
+            <h3>💙 Was hilft mir?</h3>
+            <p style="font-size: 13px; color: #888; margin: 0 0 14px 0;">Was hilft dir in schwierigen Momenten?</p>
+            <textarea
+                id="was-hilft-input"
+                class="text-input was-hilft-locked"
+                placeholder="z.B. Spazieren gehen, Musik hören, jemanden anrufen, tief durchatmen..."
+                style="width: 100%; height: 120px; resize: none; box-sizing: border-box;"
+                readonly
+            ></textarea>
+            <div style="display: flex; gap: 8px; margin-top: 12px;">
+                <button id="was-hilft-edit-btn" onclick="wasHilftBearbeiten()" class="button-secondary" style="flex: 1;">✎ Bearbeiten</button>
+                <button id="was-hilft-save-btn" onclick="saveWasHilft()" class="button-primary" style="flex: 1; margin: 0; display: none;">Speichern</button>
+            </div>
+        </div>
+
+        <!-- Persönliche Kontakte -->
+        <div class="card">
+            <h3>👤 Wen informieren?</h3>
+            <p style="font-size: 13px; color: #888; margin: 0 0 14px 0;">Personen, die ich in einer Krise kontaktieren kann:</p>
+            <div id="kontakte-liste"></div>
+            <button class="button-secondary" onclick="openKontaktModal()" style="width: 100%; margin-top: 8px;">+ Kontakt hinzufügen</button>
+        </div>
+
+        <!-- Beratung & Selbsthilfe -->
+        <div class="card">
+            <h3>🔗 Beratung & Selbsthilfe</h3>
+            <div class="link-liste">
+                <a href="https://www.promentesana.ch" target="_blank" class="link-item">
+                    <div class="link-info">
+                        <div class="link-name">Pro Mente Sana</div>
+                        <div class="link-desc">Beratung und Informationen zu psychischer Gesundheit</div>
+                    </div>
+                    <span class="link-arrow">›</span>
+                </a>
+                <a href="https://www.psychiatrie.ch" target="_blank" class="link-item">
+                    <div class="link-info">
+                        <div class="link-name">psychiatrie.ch</div>
+                        <div class="link-desc">Informationsportal der Schweizer Psychiatrie (SGPP)</div>
+                    </div>
+                    <span class="link-arrow">›</span>
+                </a>
+                <a href="https://www.vask.ch" target="_blank" class="link-item">
+                    <div class="link-info">
+                        <div class="link-name">VASK Schweiz</div>
+                        <div class="link-desc">Verband für Angehörige von Menschen mit Schizophrenie</div>
+                    </div>
+                    <span class="link-arrow">›</span>
+                </a>
+                <a href="https://www.depressionen.ch" target="_blank" class="link-item">
+                    <div class="link-info">
+                        <div class="link-name">Equilibrium</div>
+                        <div class="link-desc">Selbsthilfe bei Depression und Burnout</div>
+                    </div>
+                    <span class="link-arrow">›</span>
+                </a>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></a>
+            <a href="verlauf.html" class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">Verlauf</span></a>
+            <a href="wissen.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-label">Wissen</span></a>
+            <a href="medikamente.html" class="nav-item"><span class="nav-icon">💊</span><span class="nav-label">Medikamente</span></a>
+            <a href="krisenplan.html" class="nav-item active"><span class="nav-icon">🆘</span><span class="nav-label">Krisenplan</span></a>
+        </nav>
+
+        <script>
+
+            let editKontaktIndex = null;
+
+            window.onload = function() {
+                zeigeFruehwarnzeichen();
+                ladeWasHilft();
+                zeigeKontakte();
+            }
+
+            function closeModal(id) {
+                document.getElementById(id).classList.add('hidden');
+            }
+
+            // Frühwarnzeichen aus localStorage
+            function zeigeFruehwarnzeichen() {
+                const fwList = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
+                const container = document.getElementById('kp-fruehwarnzeichen');
+                if (fwList.length === 0) return;
+                container.innerHTML = '';
+                fwList.forEach(fw => {
+                    const tag = document.createElement('span');
+                    tag.className = 'fw-tag';
+                    tag.textContent = fw;
+                    container.appendChild(tag);
+                });
+            }
+
+            // Was hilft mir
+            function ladeWasHilft() {
+                const text = localStorage.getItem('wasHilftMir') || '';
+                const textarea = document.getElementById('was-hilft-input');
+                textarea.value = text;
+                setSperrmodus(true);
+            }
+
+            function setSperrmodus(gesperrt) {
+                const textarea = document.getElementById('was-hilft-input');
+                const editBtn = document.getElementById('was-hilft-edit-btn');
+                const saveBtn = document.getElementById('was-hilft-save-btn');
+                if (gesperrt) {
+                    textarea.readOnly = true;
+                    textarea.classList.add('was-hilft-locked');
+                    editBtn.style.display = 'block';
+                    saveBtn.style.display = 'none';
+                } else {
+                    textarea.readOnly = false;
+                    textarea.classList.remove('was-hilft-locked');
+                    textarea.focus();
+                    editBtn.style.display = 'none';
+                    saveBtn.style.display = 'block';
+                }
+            }
+
+            function wasHilftBearbeiten() {
+                setSperrmodus(false);
+            }
+
+            function saveWasHilft() {
+                const text = document.getElementById('was-hilft-input').value.trim();
+                localStorage.setItem('wasHilftMir', text);
+                setSperrmodus(true);
+            }
+
+            // Kontakte
+            function openKontaktModal() {
+                editKontaktIndex = null;
+                document.getElementById('kontakt-modal-titel').textContent = 'Kontakt hinzufügen';
+                document.getElementById('kontakt-name').value = '';
+                document.getElementById('kontakt-beziehung').value = '';
+                document.getElementById('kontakt-telefon').value = '';
+                document.getElementById('kontakt-modal').classList.remove('hidden');
+            }
+
+            function openKontaktEdit(index) {
+                editKontaktIndex = index;
+                const kontakte = JSON.parse(localStorage.getItem('krisenKontakte') || '[]');
+                const k = kontakte[index];
+                document.getElementById('kontakt-modal-titel').textContent = 'Kontakt bearbeiten';
+                document.getElementById('kontakt-name').value = k.name;
+                document.getElementById('kontakt-beziehung').value = k.beziehung || '';
+                document.getElementById('kontakt-telefon').value = k.telefon || '';
+                document.getElementById('kontakt-modal').classList.remove('hidden');
+            }
+
+            function saveKontakt() {
+                const name = document.getElementById('kontakt-name').value.trim();
+                if (!name) { alert('Bitte Name eingeben.'); return; }
+                const kontakt = {
+                    name,
+                    beziehung: document.getElementById('kontakt-beziehung').value.trim(),
+                    telefon: document.getElementById('kontakt-telefon').value.trim()
+                };
+                const kontakte = JSON.parse(localStorage.getItem('krisenKontakte') || '[]');
+                if (editKontaktIndex !== null) {
+                    kontakte[editKontaktIndex] = kontakt;
+                } else {
+                    kontakte.push(kontakt);
+                }
+                localStorage.setItem('krisenKontakte', JSON.stringify(kontakte));
+                closeModal('kontakt-modal');
+                zeigeKontakte();
+            }
+
+            function deleteKontakt(index) {
+                if (!confirm('Kontakt löschen?')) return;
+                const kontakte = JSON.parse(localStorage.getItem('krisenKontakte') || '[]');
+                kontakte.splice(index, 1);
+                localStorage.setItem('krisenKontakte', JSON.stringify(kontakte));
+                zeigeKontakte();
+            }
+
+            function zeigeKontakte() {
+                const kontakte = JSON.parse(localStorage.getItem('krisenKontakte') || '[]');
+                const liste = document.getElementById('kontakte-liste');
+                liste.innerHTML = '';
+                if (kontakte.length === 0) return;
+                kontakte.forEach((k, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'kontakt-item';
+                    div.innerHTML = `
+                        <div class="kontakt-info">
+                            <div class="kontakt-name">${k.name}</div>
+                            ${k.beziehung ? `<div class="kontakt-rolle">${k.beziehung}</div>` : ''}
+                            ${k.telefon ? `<div class="kontakt-tel">${k.telefon}</div>` : ''}
+                        </div>
+                        <div class="kontakt-actions">
+                            ${k.telefon ? `<a href="tel:${k.telefon}" class="kontakt-anrufen-btn">📞 Anrufen</a>` : ''}
+                            <button class="eintrag-edit-btn" onclick="openKontaktEdit(${index})">✎</button>
+                            <button class="eintrag-edit-btn med-delete" onclick="deleteKontakt(${index})">✕</button>
+                        </div>
+                    `;
+                    liste.appendChild(div);
+                });
+            }
+
+        </script>
+
+    </body>
+</html>

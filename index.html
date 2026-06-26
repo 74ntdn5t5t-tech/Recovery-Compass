@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="color-scheme" content="light">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="Recovery Compass">
+        <link rel="manifest" href="manifest.json">
+        <link rel="apple-touch-icon" href="icon.svg">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>body{background-color:#f4f8fb;}</style>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+        <!-- Onboarding Overlay -->
+        <div id="onboarding" class="ob-overlay" style="display:none;">
+
+            <button class="ob-skip" onclick="skipOnboarding()">Überspringen</button>
+
+            <div class="ob-slides">
+
+                <!-- Slide 1: Willkommen -->
+                <div class="ob-slide active" id="slide-1">
+                    <div class="ob-icon">🧭</div>
+                    <h2 class="ob-title">Willkommen bei<br>Recovery Compass</h2>
+                    <p class="ob-text">Dein persönlicher Begleiter auf dem Weg zu mehr Selbstbestimmung und Lebensqualität.</p>
+                </div>
+
+                <!-- Slide 2: Recovery -->
+                <div class="ob-slide" id="slide-2">
+                    <div class="ob-icon">💙</div>
+                    <h2 class="ob-title">Was ist Recovery?</h2>
+                    <p class="ob-text">Recovery bedeutet nicht Symptomfreiheit. Es geht darum, trotz oder mit einer Erkrankung ein erfülltes, selbstbestimmtes Leben zu führen – auf dem eigenen Weg.</p>
+                </div>
+
+                <!-- Slide 3: Features -->
+                <div class="ob-slide" id="slide-3">
+                    <h2 class="ob-title" style="margin-bottom: 28px;">Was kann die App?</h2>
+                    <div class="ob-features">
+                        <div class="ob-feature">
+                            <span class="ob-feature-icon">📈</span>
+                            <span class="ob-feature-text">Frühwarnzeichen verfolgen</span>
+                        </div>
+                        <div class="ob-feature">
+                            <span class="ob-feature-icon">💊</span>
+                            <span class="ob-feature-text">Medikamente im Blick</span>
+                        </div>
+                        <div class="ob-feature">
+                            <span class="ob-feature-icon">🆘</span>
+                            <span class="ob-feature-text">Krisenplan griffbereit</span>
+                        </div>
+                        <div class="ob-feature">
+                            <span class="ob-feature-icon">📖</span>
+                            <span class="ob-feature-text">Wissen aufbauen</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 4: Bereit -->
+                <div class="ob-slide" id="slide-4">
+                    <div class="ob-icon">🚀</div>
+                    <h2 class="ob-title">Bereit zum Loslegen?</h2>
+                    <p class="ob-text">Im nächsten Schritt richtest du deine persönlichen Frühwarnzeichen ein. Das dauert weniger als eine Minute.</p>
+                </div>
+
+            </div>
+
+            <div class="ob-footer">
+                <div class="ob-dots" id="ob-dots">
+                    <span class="ob-dot active"></span>
+                    <span class="ob-dot"></span>
+                    <span class="ob-dot"></span>
+                    <span class="ob-dot"></span>
+                </div>
+                <button class="ob-next-btn" id="ob-next-btn" onclick="nextSlide()">Weiter →</button>
+            </div>
+
+        </div>
+
+        <!-- Hauptinhalt -->
+        <div class="header">
+            <h1>Recovery Compass</h1>
+            <p>Dein persönlicher Begleiter zur Psychoserezidivprävention.</p>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="card dashboard-card" id="dashboard">
+            <div class="dashboard-greeting" id="dash-greeting">Guten Tag</div>
+            <div class="dashboard-stats">
+                <div class="dashboard-stat" onclick="window.location.href='medikamente.html'">
+                    <div class="dashboard-stat-value" id="dash-med">–</div>
+                    <div class="dashboard-stat-label">Medis heute</div>
+                </div>
+                <div class="dashboard-sep"></div>
+                <div class="dashboard-stat" onclick="window.location.href='verlauf.html'">
+                    <div class="dashboard-stat-value" id="dash-eintrag">–</div>
+                    <div class="dashboard-stat-label">Letzter Eintrag</div>
+                </div>
+                <div class="dashboard-sep"></div>
+                <div class="dashboard-stat" onclick="window.location.href='verlauf.html'">
+                    <div class="dashboard-stat-value" id="dash-trend">–</div>
+                    <div class="dashboard-stat-label">Trend</div>
+                </div>
+            </div>
+            <button class="dashboard-quick-btn" onclick="window.location.href='verlauf.html?neu=1'">+ Neuer Eintrag</button>
+        </div>
+
+        <div class="card recovery-card">
+            <div class="recovery-tag">💙 Was ist Recovery?</div>
+            <p>Recovery bedeutet, trotz bestehender Symptome ein selbstbestimmtes und erfülltes Leben zu führen. Diese App begleitet dich auf diesem Weg.</p>
+            <a href="recovery.html" class="recovery-link">Mehr erfahren →</a>
+        </div>
+
+        <a href="verlauf.html" class="card-link">
+            <div class="card card-nav">
+                <span class="card-nav-icon">📈</span>
+                <div>
+                    <h3>Mein Verlauf</h3>
+                    <p>Frühwarnzeichen dokumentieren und beobachten.</p>
+                </div>
+                <span class="card-arrow">›</span>
+            </div>
+        </a>
+
+        <a href="wissen.html" class="card-link">
+            <div class="card card-nav">
+                <span class="card-nav-icon">📖</span>
+                <div>
+                    <h3>Wissen</h3>
+                    <p>Recovery, Psychose, Alltagsmanagement und mehr.</p>
+                </div>
+                <span class="card-arrow">›</span>
+            </div>
+        </a>
+
+        <a href="medikamente.html" class="card-link">
+            <div class="card card-nav">
+                <span class="card-nav-icon">💊</span>
+                <div>
+                    <h3>Meine Medikamente</h3>
+                    <p>Medikamente erfassen und Einnahme dokumentieren.</p>
+                </div>
+                <span class="card-arrow">›</span>
+            </div>
+        </a>
+
+        <a href="krisenplan.html" class="card-link">
+            <div class="card card-nav">
+                <span class="card-nav-icon">🆘</span>
+                <div>
+                    <h3>Hilfe & Krisenplan</h3>
+                    <p>Notfallkontakte und dein persönlicher Krisenplan.</p>
+                </div>
+                <span class="card-arrow">›</span>
+            </div>
+        </a>
+
+        <a href="ueberuns.html" class="card-link">
+            <div class="card card-nav">
+                <span class="card-nav-icon">ℹ️</span>
+                <div>
+                    <h3>Über uns</h3>
+                    <p>Hintergrund, Quellen und das Projektteam.</p>
+                </div>
+                <span class="card-arrow">›</span>
+            </div>
+        </a>
+
+        <script>
+
+            let currentSlide = 1;
+            const totalSlides = 4;
+
+            window.onload = function() {
+                if (!localStorage.getItem('onboardingDone')) {
+                    document.getElementById('onboarding').style.display = 'flex';
+                }
+                ladeDashboard();
+            }
+
+            function ladeDashboard() {
+                // Tagesgruss
+                const stunde = new Date().getHours();
+                let gruss = stunde < 11 ? 'Guten Morgen ☀️' :
+                            stunde < 18 ? 'Guten Tag 👋' :
+                            stunde < 22 ? 'Guten Abend 🌙' : 'Gute Nacht 🌙';
+                document.getElementById('dash-greeting').textContent = gruss;
+
+                // Medikamente heute
+                const meds = JSON.parse(localStorage.getItem('medikamente') || '[]');
+                if (meds.length > 0) {
+                    const today = new Date().toISOString().split('T')[0];
+                    const einnahme = JSON.parse(localStorage.getItem('einnahme_' + today) || '{}');
+                    let total = 0, taken = 0;
+                    meds.forEach(med => {
+                        if (med.haeufigkeit === '0' || !med.uhrzeiten || med.uhrzeiten.length === 0) {
+                            // Nach Bedarf: 1 Slot
+                            total++;
+                            if (einnahme[med.id + '_0'] === true) taken++;
+                        } else {
+                            med.uhrzeiten.forEach((_, i) => {
+                                total++;
+                                if (einnahme[med.id + '_' + i] === true) taken++;
+                            });
+                        }
+                    });
+                    const medEl = document.getElementById('dash-med');
+                    medEl.textContent = taken + '/' + total;
+                    medEl.style.color = taken === total ? '#4ac98a' : 'white';
+                } else {
+                    document.getElementById('dash-med').textContent = '–';
+                }
+
+                // Letzter Eintrag
+                const eintraege = JSON.parse(localStorage.getItem('eintraege') || '[]');
+                if (eintraege.length > 0) {
+                    // Datum: z.B. "25.6." (ohne Jahr wenn dieses Jahr)
+                    const letzter = eintraege[0].datum; // de-CH Format: 25.6.2026
+                    const teile = letzter.split('.');
+                    const heute = new Date();
+                    const eintragJahr = parseInt(teile[2]);
+                    let anzeige = teile[0] + '.' + teile[1] + '.';
+                    if (eintragJahr !== heute.getFullYear()) anzeige += teile[2];
+                    document.getElementById('dash-eintrag').textContent = anzeige;
+
+                    // Trend (letzter vs. vorletzter Eintrag)
+                    if (eintraege.length >= 2) {
+                        const avg = e => {
+                            const w = Object.values(e.werte || {});
+                            return w.length ? w.reduce((a, b) => a + b, 0) / w.length : 0;
+                        };
+                        const diff = avg(eintraege[0]) - avg(eintraege[1]);
+                        const trendEl = document.getElementById('dash-trend');
+                        if (diff > 0.4) {
+                            trendEl.textContent = '↑';
+                            trendEl.className = 'dashboard-stat-value dashboard-trend-schlecht';
+                        } else if (diff < -0.4) {
+                            trendEl.textContent = '↓';
+                            trendEl.className = 'dashboard-stat-value dashboard-trend-gut';
+                        } else {
+                            trendEl.textContent = '→';
+                            trendEl.className = 'dashboard-stat-value dashboard-trend-neutral';
+                        }
+                    }
+                } else {
+                    document.getElementById('dash-eintrag').textContent = '–';
+                }
+            }
+
+            function nextSlide() {
+                if (currentSlide >= totalSlides) {
+                    finishOnboarding();
+                    return;
+                }
+
+                // Aktuellen Slide raus
+                const current = document.getElementById('slide-' + currentSlide);
+                current.classList.remove('active');
+                current.classList.add('exit');
+
+                currentSlide++;
+
+                // Nächsten Slide rein
+                const next = document.getElementById('slide-' + currentSlide);
+                next.classList.add('active');
+
+                // Dots aktualisieren
+                document.querySelectorAll('.ob-dot').forEach((dot, i) => {
+                    dot.classList.toggle('active', i + 1 === currentSlide);
+                });
+
+                // Letzter Slide: Button-Text ändern
+                if (currentSlide === totalSlides) {
+                    document.getElementById('ob-next-btn').textContent = 'Jetzt einrichten →';
+                }
+            }
+
+            function skipOnboarding() {
+                finishOnboarding();
+            }
+
+            function finishOnboarding() {
+                localStorage.setItem('onboardingDone', 'true');
+                const ob = document.getElementById('onboarding');
+                ob.classList.add('ob-fade-out');
+                setTimeout(() => {
+                    ob.style.display = 'none';
+                    if (currentSlide === totalSlides) {
+                        window.location.href = 'verlauf.html';
+                    }
+                }, 400);
+            }
+
+        </script>
+
+    </body>
+</html>

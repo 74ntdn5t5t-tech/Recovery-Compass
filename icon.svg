@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#4a7fe5"/>
+  <circle cx="256" cy="256" r="160" fill="none" stroke="white" stroke-width="16" opacity="0.4"/>
+  <circle cx="256" cy="256" r="120" fill="none" stroke="white" stroke-width="8" opacity="0.3"/>
+  <!-- Kompassnadel Nord (blau-weiss) -->
+  <polygon points="256,96 270,256 256,270 242,256" fill="white"/>
+  <polygon points="256,416 270,256 256,270 242,256" fill="rgba(255,255,255,0.4)"/>
+  <!-- Mittelkreis -->
+  <circle cx="256" cy="256" r="18" fill="white"/>
+  <circle cx="256" cy="256" r="10" fill="#4a7fe5"/>
+  <!-- N -->
+  <text x="256" y="72" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="36" fill="white">N</text>
+</svg>

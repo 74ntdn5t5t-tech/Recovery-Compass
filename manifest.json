@@ -1,0 +1,18 @@
+{
+  "name": "Recovery Compass",
+  "short_name": "Recovery",
+  "description": "Dein persönlicher Begleiter zur Psychoserezidivprävention.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f8fb",
+  "theme_color": "#4a7fe5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

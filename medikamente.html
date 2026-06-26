@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="color-scheme" content="light">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="Recovery Compass">
+        <link rel="manifest" href="manifest.json">
+        <link rel="apple-touch-icon" href="icon.svg">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>body{background-color:#f4f8fb;}</style>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+        <!-- Medikament hinzufügen / bearbeiten Modal -->
+        <div id="med-modal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <h2 id="med-modal-titel">Medikament hinzufügen</h2>
+
+                <label class="datum-label">Wirkstoff *</label>
+                <input type="text" id="med-wirkstoff" placeholder="z.B. Risperidon" class="text-input med-input">
+
+                <label class="datum-label">Handelsname (optional)</label>
+                <input type="text" id="med-handelsname" placeholder="z.B. Risperdal" class="text-input med-input">
+
+                <label class="datum-label">Applikationsform</label>
+                <select id="med-applikation" class="text-input med-input">
+                    <option value="Tablette (oral)">Tablette (oral)</option>
+                    <option value="Schmelztablette">Schmelztablette</option>
+                    <option value="Tropfen">Tropfen</option>
+                    <option value="Injektion (s.c.)">Injektion (s.c.)</option>
+                    <option value="Injektion (i.m.)">Injektion (i.m.)</option>
+                    <option value="Depot-Injektion">Depot-Injektion</option>
+                    <option value="Pflaster">Pflaster</option>
+                    <option value="Andere">Andere</option>
+                </select>
+
+                <label class="datum-label">Dosis</label>
+                <input type="text" id="med-dosis" placeholder="z.B. 2 mg" class="text-input med-input">
+
+                <label class="datum-label">Häufigkeit</label>
+                <select id="med-haeufigkeit" class="text-input med-input" onchange="updateUhrzeiten()">
+                    <option value="1">1× täglich</option>
+                    <option value="2">2× täglich</option>
+                    <option value="3">3× täglich</option>
+                    <option value="0">Nach Bedarf</option>
+                </select>
+
+                <div id="uhrzeiten-container"></div>
+
+                <label class="datum-label">Notizen (optional)</label>
+                <textarea id="med-notizen" placeholder="Besonderheiten, Hinweise..." class="text-input med-input" style="height: 70px; resize: none;"></textarea>
+
+                <button onclick="saveMedikament()" class="button-primary">Speichern</button>
+                <button onclick="closeModal('med-modal')" class="button-cancel">Abbrechen</button>
+            </div>
+        </div>
+
+        <!-- Hauptinhalt -->
+        <div class="header">
+            <h1>Meine Medikamente</h1>
+            <p>Tagesplan und Medikamentenverwaltung.</p>
+        </div>
+
+        <!-- Tagesplan -->
+        <div class="card" id="tagesplan-card">
+            <div class="tagesplan-nav">
+                <button class="tagesplan-btn" onclick="changeDay(-1)">‹</button>
+                <span id="tagesplan-datum" class="tagesplan-datum-label"></span>
+                <button class="tagesplan-btn" onclick="changeDay(1)">›</button>
+            </div>
+            <div id="tagesplan-liste">
+                <p class="placeholder-text">Noch keine Medikamente erfasst.</p>
+            </div>
+        </div>
+
+        <!-- Medikamente verwalten -->
+        <div class="section-label">Meine Medikamente</div>
+        <button class="button-primary" onclick="openMedModal()">+ Medikament hinzufügen</button>
+        <div id="med-liste"></div>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></a>
+            <a href="verlauf.html" class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">Verlauf</span></a>
+            <a href="wissen.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-label">Wissen</span></a>
+            <a href="medikamente.html" class="nav-item active"><span class="nav-icon">💊</span><span class="nav-label">Medikamente</span></a>
+            <a href="krisenplan.html" class="nav-item"><span class="nav-icon">🆘</span><span class="nav-label">Krisenplan</span></a>
+        </nav>
+
+        <script>
+
+            let editMedIndex = null;
+            let currentDayOffset = 0;
+
+            window.onload = function() {
+                updateUhrzeiten();
+                zeigeMedikamente();
+                renderTagesplan();
+            }
+
+            function closeModal(id) {
+                document.getElementById(id).classList.add('hidden');
+            }
+
+            // Datum für einen Offset berechnen
+            function datumFuerOffset(offset) {
+                const d = new Date();
+                d.setDate(d.getDate() + offset);
+                return d;
+            }
+
+            function datumAlsKey(d) {
+                return d.toISOString().split('T')[0];
+            }
+
+            function datumAlsText(d) {
+                if (currentDayOffset === 0) return 'Heute · ' + d.toLocaleDateString('de-CH');
+                if (currentDayOffset === -1) return 'Gestern · ' + d.toLocaleDateString('de-CH');
+                if (currentDayOffset === 1) return 'Morgen · ' + d.toLocaleDateString('de-CH');
+                return d.toLocaleDateString('de-CH', { weekday: 'short', day: 'numeric', month: 'numeric', year: 'numeric' });
+            }
+
+            // Tag wechseln
+            function changeDay(offset) {
+                currentDayOffset += offset;
+                renderTagesplan();
+            }
+
+            // Tagesplan rendern
+            function renderTagesplan() {
+                const d = datumFuerOffset(currentDayOffset);
+                const key = 'einnahme_' + datumAlsKey(d);
+                const einnahmen = JSON.parse(localStorage.getItem(key) || '{}');
+                const meds = JSON.parse(localStorage.getItem('medikamente') || '[]');
+
+                document.getElementById('tagesplan-datum').textContent = datumAlsText(d);
+
+                const liste = document.getElementById('tagesplan-liste');
+
+                if (meds.length === 0) {
+                    liste.innerHTML = '<p class="placeholder-text">Noch keine Medikamente erfasst.</p>';
+                    return;
+                }
+
+                // Zeitslots erstellen
+                const slots = [];
+                meds.forEach(m => {
+                    if (m.haeufigkeit === '0' || !m.uhrzeiten || m.uhrzeiten.length === 0) {
+                        slots.push({ zeit: m.haeufigkeit === '0' ? 'Nach Bedarf' : '–', med: m, slotKey: m.id + '_0' });
+                    } else {
+                        m.uhrzeiten.forEach((zeit, i) => {
+                            slots.push({ zeit, med: m, slotKey: m.id + '_' + i });
+                        });
+                    }
+                });
+
+                // Nach Uhrzeit sortieren
+                slots.sort((a, b) => {
+                    if (a.zeit === 'Nach Bedarf' || a.zeit === '–') return 1;
+                    if (b.zeit === 'Nach Bedarf' || b.zeit === '–') return -1;
+                    return a.zeit.localeCompare(b.zeit);
+                });
+
+                liste.innerHTML = '';
+                slots.forEach(slot => {
+                    const genommen = einnahmen[slot.slotKey] === true;
+                    const row = document.createElement('div');
+                    row.className = 'tagesplan-row' + (genommen ? ' tp-genommen' : '');
+                    const handelsname = slot.med.handelsname ? ` (${slot.med.handelsname})` : '';
+                    row.innerHTML = `
+                        <div class="tp-zeit">${slot.zeit}</div>
+                        <div class="tp-info">
+                            <div class="tp-name">${slot.med.wirkstoff}${handelsname}</div>
+                            <div class="tp-details">${slot.med.dosis} · ${slot.med.applikation}</div>
+                        </div>
+                        <button class="tp-check ${genommen ? 'tp-check-done' : ''}" onclick="toggleSlot('${slot.slotKey}', '${datumAlsKey(d)}')">
+                            ${genommen ? '✓' : '○'}
+                        </button>
+                    `;
+                    liste.appendChild(row);
+                });
+            }
+
+            // Einnahme-Slot togglen
+            function toggleSlot(slotKey, datumKey) {
+                const key = 'einnahme_' + datumKey;
+                const einnahmen = JSON.parse(localStorage.getItem(key) || '{}');
+                einnahmen[slotKey] = !einnahmen[slotKey];
+                localStorage.setItem(key, JSON.stringify(einnahmen));
+                renderTagesplan();
+            }
+
+            // Uhrzeiten-Felder dynamisch anpassen
+            function updateUhrzeiten(prefill) {
+                const anzahl = parseInt(document.getElementById('med-haeufigkeit').value);
+                const container = document.getElementById('uhrzeiten-container');
+                container.innerHTML = '';
+                if (anzahl === 0) return;
+
+                const label = document.createElement('label');
+                label.className = 'datum-label';
+                label.textContent = anzahl === 1 ? 'Uhrzeit' : 'Uhrzeiten';
+                container.appendChild(label);
+
+                for (let i = 0; i < anzahl; i++) {
+                    const input = document.createElement('input');
+                    input.type = 'time';
+                    input.className = 'text-input med-input';
+                    if (prefill && prefill[i]) input.value = prefill[i];
+                    container.appendChild(input);
+                }
+            }
+
+            function openMedModal() {
+                editMedIndex = null;
+                document.getElementById('med-modal-titel').textContent = 'Medikament hinzufügen';
+                document.getElementById('med-wirkstoff').value = '';
+                document.getElementById('med-handelsname').value = '';
+                document.getElementById('med-applikation').value = 'Tablette (oral)';
+                document.getElementById('med-dosis').value = '';
+                document.getElementById('med-haeufigkeit').value = '1';
+                document.getElementById('med-notizen').value = '';
+                updateUhrzeiten();
+                document.getElementById('med-modal').classList.remove('hidden');
+            }
+
+            function openMedEdit(index) {
+                editMedIndex = index;
+                const meds = JSON.parse(localStorage.getItem('medikamente') || '[]');
+                const m = meds[index];
+                document.getElementById('med-modal-titel').textContent = 'Medikament bearbeiten';
+                document.getElementById('med-wirkstoff').value = m.wirkstoff;
+                document.getElementById('med-handelsname').value = m.handelsname || '';
+                document.getElementById('med-applikation').value = m.applikation;
+                document.getElementById('med-dosis').value = m.dosis;
+                document.getElementById('med-haeufigkeit').value = m.haeufigkeit;
+                document.getElementById('med-notizen').value = m.notizen || '';
+                updateUhrzeiten(m.uhrzeiten);
+                document.getElementById('med-modal').classList.remove('hidden');
+            }
+
+            function saveMedikament() {
+                const wirkstoff = document.getElementById('med-wirkstoff').value.trim();
+                if (!wirkstoff) { alert('Bitte Wirkstoff eingeben.'); return; }
+
+                const uhrzeitInputs = document.querySelectorAll('#uhrzeiten-container input[type="time"]');
+                const uhrzeiten = Array.from(uhrzeitInputs).map(i => i.value).filter(v => v);
+
+                const med = {
+                    id: Date.now(),
+                    wirkstoff,
+                    handelsname: document.getElementById('med-handelsname').value.trim(),
+                    applikation: document.getElementById('med-applikation').value,
+                    dosis: document.getElementById('med-dosis').value.trim(),
+                    haeufigkeit: document.getElementById('med-haeufigkeit').value,
+                    uhrzeiten,
+                    notizen: document.getElementById('med-notizen').value.trim()
+                };
+
+                const meds = JSON.parse(localStorage.getItem('medikamente') || '[]');
+                if (editMedIndex !== null) {
+                    med.id = meds[editMedIndex].id;
+                    meds[editMedIndex] = med;
+                } else {
+                    meds.push(med);
+                }
+
+                localStorage.setItem('medikamente', JSON.stringify(meds));
+                closeModal('med-modal');
+                zeigeMedikamente();
+                renderTagesplan();
+            }
+
+            function deleteMed(index) {
+                if (!confirm('Medikament wirklich löschen?')) return;
+                const meds = JSON.parse(localStorage.getItem('medikamente') || '[]');
+                meds.splice(index, 1);
+                localStorage.setItem('medikamente', JSON.stringify(meds));
+                zeigeMedikamente();
+                renderTagesplan();
+            }
+
+            function zeigeMedikamente() {
+                const meds = JSON.parse(localStorage.getItem('medikamente') || '[]');
+                const liste = document.getElementById('med-liste');
+                liste.innerHTML = '';
+
+                if (meds.length === 0) return;
+
+                meds.forEach((m, index) => {
+                    const haeufigkeitText = m.haeufigkeit === '0' ? 'Nach Bedarf' : m.haeufigkeit + '× täglich';
+                    const uhrzeitText = m.uhrzeiten && m.uhrzeiten.length > 0 ? m.uhrzeiten.join(' · ') : '';
+                    const handelsname = m.handelsname ? ` (${m.handelsname})` : '';
+
+                    const card = document.createElement('div');
+                    card.className = 'card med-card';
+                    card.innerHTML = `
+                        <div class="med-name">${m.wirkstoff}${handelsname}</div>
+                        <div class="med-details">${m.dosis} · ${m.applikation}</div>
+                        <div class="med-details">${haeufigkeitText}${uhrzeitText ? ' · ' + uhrzeitText : ''}</div>
+                        ${m.notizen ? `<div class="med-notiz">${m.notizen}</div>` : ''}
+                        <div class="med-actions">
+                            <button class="eintrag-edit-btn" onclick="openMedEdit(${index})">✎ Bearbeiten</button>
+                            <button class="eintrag-edit-btn med-delete" onclick="deleteMed(${index})">✕ Löschen</button>
+                        </div>
+                    `;
+                    liste.appendChild(card);
+                });
+            }
+
+        </script>
+
+    </body>
+</html>

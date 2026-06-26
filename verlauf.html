@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="color-scheme" content="light">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="Recovery Compass">
+        <link rel="manifest" href="manifest.json">
+        <link rel="apple-touch-icon" href="icon.svg">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>body{background-color:#f4f8fb;}</style>
+        <link rel="stylesheet" href="style.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    </head>
+    <body>
+
+        <!-- Setup-Modal -->
+        <div id="setup-modal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <h2>Willkommen 👋</h2>
+                <p class="modal-intro">Wähle deine persönlichen Frühwarnzeichen aus. Du kannst sie später noch ergänzen.</p>
+                <div class="fw-liste">
+                    <label class="fw-item"><input type="checkbox" class="fw-checkbox" value="Schlafprobleme"><span>Schlafprobleme</span></label>
+                    <label class="fw-item"><input type="checkbox" class="fw-checkbox" value="Misstrauen"><span>Misstrauen</span></label>
+                    <label class="fw-item"><input type="checkbox" class="fw-checkbox" value="Sozialer Rückzug"><span>Sozialer Rückzug</span></label>
+                    <label class="fw-item"><input type="checkbox" class="fw-checkbox" value="Innere Unruhe"><span>Innere Unruhe</span></label>
+                    <label class="fw-item"><input type="checkbox" class="fw-checkbox" value="Konzentrationsprobleme"><span>Konzentrationsprobleme</span></label>
+                    <label class="fw-item"><input type="checkbox" class="fw-checkbox" value="Gereiztheit"><span>Gereiztheit</span></label>
+                    <label class="fw-item"><input type="checkbox" class="fw-checkbox" value="Stimmungsschwankungen"><span>Stimmungsschwankungen</span></label>
+                    <label class="fw-item"><input type="checkbox" class="fw-checkbox" value="Gedankenrasen"><span>Gedankenrasen</span></label>
+                    <label class="fw-item"><input type="checkbox" class="fw-checkbox" value="Appetitverlust"><span>Appetitverlust</span></label>
+                    <label class="fw-item"><input type="checkbox" class="fw-checkbox" value="Vernachlässigung der Körperpflege"><span>Vernachlässigung der Körperpflege</span></label>
+                </div>
+                <div class="custom-add">
+                    <input type="text" id="custom-input" placeholder="Eigenes Frühwarnzeichen..." class="text-input">
+                    <button onclick="addCustomSetup()" class="button-secondary">+ Hinzufügen</button>
+                </div>
+                <button onclick="saveSetup()" class="button-primary">Fertig</button>
+            </div>
+        </div>
+
+        <!-- Neuer Eintrag / Bearbeiten Modal -->
+        <div id="eintrag-modal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <h2 id="modal-titel">Neuer Eintrag</h2>
+                <div class="datum-feld">
+                    <label class="datum-label">Datum</label>
+                    <input type="date" id="eintrag-datum" class="text-input datum-input">
+                </div>
+                <p class="modal-intro">0 = gar nicht, 5 = stark eingeschränkt.</p>
+                <div id="eintrag-form"></div>
+                <button onclick="saveEintrag()" class="button-primary">Speichern</button>
+                <button onclick="closeModal('eintrag-modal')" class="button-cancel">Abbrechen</button>
+            </div>
+        </div>
+
+        <!-- Nur im Druck sichtbar -->
+        <div class="print-header">
+            <div class="print-titel">Recovery Compass – Mein Verlauf</div>
+            <div id="print-datum" class="print-datum"></div>
+        </div>
+
+        <!-- Hauptinhalt -->
+        <div class="header no-print">
+            <h1>Mein Verlauf</h1>
+            <p>Beobachte und dokumentiere deine Frühwarnzeichen.</p>
+        </div>
+
+        <div class="no-print" style="display: flex; gap: 10px; margin-bottom: 16px;">
+            <button class="button-primary" onclick="openEintrag()" style="flex: 1; margin: 0;">+ Neuer Eintrag</button>
+            <button class="button-secondary" onclick="drucken()">🖨️ Drucken</button>
+        </div>
+
+        <div class="card">
+            <!-- Filter UI -->
+            <div class="filter-nav no-print">
+                <div class="filter-tabs">
+                    <button class="filter-tab" data-filter="woche" onclick="setFilter('woche')">Woche</button>
+                    <button class="filter-tab active" data-filter="monat" onclick="setFilter('monat')">Monat</button>
+                    <button class="filter-tab" data-filter="3monate" onclick="setFilter('3monate')">3 Monate</button>
+                    <button class="filter-tab" data-filter="alles" onclick="setFilter('alles')">Alles</button>
+                </div>
+                <div class="filter-zeitraum" id="filter-zeitraum">
+                    <button class="filter-pfeil" onclick="navigiere(-1)">‹</button>
+                    <span class="filter-label" id="filter-label"></span>
+                    <button class="filter-pfeil" id="filter-pfeil-rechts" onclick="navigiere(1)">›</button>
+                </div>
+            </div>
+            <h3 style="display:none;" class="print-show">Verlauf</h3>
+            <p class="placeholder-text" id="chart-placeholder" style="display:none;">Keine Einträge im gewählten Zeitraum.</p>
+            <canvas id="verlauf-chart" style="display:none;"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>Einträge <span id="filter-anzahl" style="font-size:13px; font-weight:normal; color:#888;"></span></h3>
+            <p class="placeholder-text" id="keine-eintraege" style="display:none;">Keine Einträge im gewählten Zeitraum.</p>
+            <div id="eintraege-liste"></div>
+        </div>
+
+        <div class="add-fw-bar no-print" onclick="toggleAddFw()">
+            + Weiteres Frühwarnzeichen hinzufügen
+        </div>
+        <div id="add-fw-form" class="add-fw-form hidden no-print">
+            <input type="text" id="add-fw-input" placeholder="Frühwarnzeichen eingeben..." class="text-input">
+            <button onclick="addFruehwarnzeichen()" class="button-secondary">Hinzufügen</button>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></a>
+            <a href="verlauf.html" class="nav-item active"><span class="nav-icon">📈</span><span class="nav-label">Verlauf</span></a>
+            <a href="wissen.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-label">Wissen</span></a>
+            <a href="medikamente.html" class="nav-item"><span class="nav-icon">💊</span><span class="nav-label">Medikamente</span></a>
+            <a href="krisenplan.html" class="nav-item"><span class="nav-icon">🆘</span><span class="nav-label">Krisenplan</span></a>
+        </nav>
+
+        <script>
+
+            const linienfarben = [
+                '#4a7fe5', '#e55b4a', '#f0a500', '#4ac98a',
+                '#9b4ae5', '#e5944a', '#45b7d1', '#f06292'
+            ];
+
+            let editIndex = null;
+            let verlaufChart = null;
+            let aktiverFilter = 'monat';
+            let filterOffset = 0;
+
+            // Hilfsfunktion: de-CH Datum (25.6.2026) → Date-Objekt
+            function parseDatum(str) {
+                const t = str.split('.');
+                return new Date(t[2], t[1] - 1, t[0]);
+            }
+
+            // Hilfsfunktion: ISO-Datum (2026-06-25) → de-CH (25.6.2026)
+            function isoZuDeCH(iso) {
+                const t = iso.split('-');
+                return `${parseInt(t[2])}.${parseInt(t[1])}.${t[0]}`;
+            }
+
+            // Hilfsfunktion: de-CH → ISO für date-Input
+            function deCHZuIso(deCH) {
+                const t = deCH.split('.');
+                return `${t[2]}-${t[1].padStart(2,'0')}-${t[0].padStart(2,'0')}`;
+            }
+
+            window.onload = function() {
+                if (!localStorage.getItem('setupDone')) {
+                    document.getElementById('setup-modal').classList.remove('hidden');
+                }
+                updateFilterUI();
+                aktualisiereAnsicht();
+                // Schnell-Eintrag via ?neu=1 (z.B. vom Dashboard)
+                if (new URLSearchParams(window.location.search).get('neu') === '1') {
+                    openEintrag();
+                }
+            }
+
+            function closeModal(id) {
+                document.getElementById(id).classList.add('hidden');
+            }
+
+            // === SETUP ===
+
+            function addCustomSetup() {
+                const input = document.getElementById('custom-input');
+                const value = input.value.trim();
+                if (!value) return;
+                const liste = document.querySelector('.fw-liste');
+                const label = document.createElement('label');
+                label.className = 'fw-item';
+                label.innerHTML = `<input type="checkbox" class="fw-checkbox" value="${value}" checked><span>${value}</span>`;
+                liste.appendChild(label);
+                input.value = '';
+            }
+
+            function saveSetup() {
+                const checkboxes = document.querySelectorAll('.fw-checkbox:checked');
+                const selected = [];
+                checkboxes.forEach(cb => selected.push(cb.value));
+                if (selected.length === 0) {
+                    alert('Bitte wähle mindestens ein Frühwarnzeichen aus.');
+                    return;
+                }
+                localStorage.setItem('fruehwarnzeichen', JSON.stringify(selected));
+                localStorage.setItem('setupDone', 'true');
+                closeModal('setup-modal');
+            }
+
+            // === EINTRAG FORMULAR AUFBAUEN ===
+
+            function buildForm(existingWerte) {
+                const fwList = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
+                const form = document.getElementById('eintrag-form');
+                form.innerHTML = '';
+
+                fwList.forEach((fw, index) => {
+                    const farbe = linienfarben[index % linienfarben.length];
+                    const wert = existingWerte && existingWerte[fw] ? existingWerte[fw].wert : 0;
+                    const kommentar = existingWerte && existingWerte[fw] ? existingWerte[fw].kommentar : '';
+
+                    const div = document.createElement('div');
+                    div.className = 'fw-eintrag';
+                    div.innerHTML = `
+                        <div class="fw-eintrag-header">
+                            <span class="fw-name" style="border-left: 3px solid ${farbe}; padding-left: 8px;">${fw}</span>
+                            <span class="fw-wert" id="wert-${index}" style="color: ${farbe};">${wert}</span>
+                        </div>
+                        <input type="range" min="0" max="5" value="${wert}" class="slider"
+                               style="accent-color: ${farbe};"
+                               oninput="document.getElementById('wert-${index}').textContent = this.value"
+                               data-name="${fw}">
+                        <div class="slider-labels"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+                        <textarea placeholder="Kommentar (optional)..." class="text-input kommentar-input" data-name="${fw}">${kommentar}</textarea>
+                    `;
+                    form.appendChild(div);
+                });
+            }
+
+            // === NEUER EINTRAG ===
+
+            function openEintrag() {
+                editIndex = null;
+                document.getElementById('modal-titel').textContent = 'Neuer Eintrag';
+                const heute = new Date().toISOString().split('T')[0];
+                document.getElementById('eintrag-datum').value = heute;
+                buildForm(null);
+                document.getElementById('eintrag-modal').classList.remove('hidden');
+            }
+
+            // === EINTRAG BEARBEITEN ===
+
+            function openEintragEdit(index) {
+                editIndex = index;
+                document.getElementById('modal-titel').textContent = 'Eintrag bearbeiten';
+                const eintraege = JSON.parse(localStorage.getItem('eintraege') || '[]');
+                const eintrag = eintraege[index];
+                document.getElementById('eintrag-datum').value = deCHZuIso(eintrag.datum);
+                buildForm(eintrag.werte);
+                document.getElementById('eintrag-modal').classList.remove('hidden');
+            }
+
+            // === SPEICHERN ===
+
+            function saveEintrag() {
+                const sliders = document.querySelectorAll('#eintrag-form .slider');
+                const kommentare = document.querySelectorAll('#eintrag-form .kommentar-input');
+                const werte = {};
+
+                sliders.forEach((slider, i) => {
+                    werte[slider.dataset.name] = {
+                        wert: parseInt(slider.value),
+                        kommentar: kommentare[i].value.trim()
+                    };
+                });
+
+                const datumIso = document.getElementById('eintrag-datum').value;
+                const datum = datumIso ? isoZuDeCH(datumIso) : new Date().toLocaleDateString('de-CH');
+
+                const eintrag = { datum, werte };
+                const eintraege = JSON.parse(localStorage.getItem('eintraege') || '[]');
+
+                if (editIndex !== null) {
+                    eintraege[editIndex] = eintrag;
+                } else {
+                    eintraege.unshift(eintrag);
+                }
+
+                // Nach Datum sortieren (neueste zuerst)
+                eintraege.sort((a, b) => parseDatum(b.datum) - parseDatum(a.datum));
+
+                localStorage.setItem('eintraege', JSON.stringify(eintraege));
+                closeModal('eintrag-modal');
+                aktualisiereAnsicht();
+            }
+
+            // === FILTER ===
+
+            function getFilterZeitraum() {
+                const heute = new Date();
+                let von, bis, label;
+
+                if (aktiverFilter === 'woche') {
+                    const mo = new Date(heute);
+                    const tag = mo.getDay();
+                    mo.setDate(mo.getDate() + (tag === 0 ? -6 : 1 - tag) + filterOffset * 7);
+                    mo.setHours(0, 0, 0, 0);
+                    const so = new Date(mo);
+                    so.setDate(mo.getDate() + 6);
+                    von = mo; bis = so;
+                    label = mo.toLocaleDateString('de-CH', { day: 'numeric', month: 'numeric' }) +
+                            ' – ' + so.toLocaleDateString('de-CH', { day: 'numeric', month: 'numeric', year: 'numeric' });
+
+                } else if (aktiverFilter === 'monat') {
+                    const d = new Date(heute.getFullYear(), heute.getMonth() + filterOffset, 1);
+                    von = d;
+                    bis = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+                    label = d.toLocaleDateString('de-CH', { month: 'long', year: 'numeric' });
+
+                } else if (aktiverFilter === '3monate') {
+                    const endD = new Date(heute.getFullYear(), heute.getMonth() + filterOffset + 1, 0);
+                    const startD = new Date(endD.getFullYear(), endD.getMonth() - 2, 1);
+                    von = startD; bis = endD;
+                    const sl = startD.toLocaleDateString('de-CH', { month: 'short' });
+                    const el = endD.toLocaleDateString('de-CH', { month: 'short', year: 'numeric' });
+                    label = sl + ' – ' + el;
+                }
+
+                return { von, bis, label };
+            }
+
+            function getGefilterteEintraege() {
+                const alle = JSON.parse(localStorage.getItem('eintraege') || '[]');
+                if (aktiverFilter === 'alles') return alle;
+                const { von, bis } = getFilterZeitraum();
+                return alle.filter(e => {
+                    const d = parseDatum(e.datum);
+                    return d >= von && d <= bis;
+                });
+            }
+
+            function setFilter(filter) {
+                aktiverFilter = filter;
+                filterOffset = 0;
+                updateFilterUI();
+                aktualisiereAnsicht();
+            }
+
+            function navigiere(delta) {
+                filterOffset += delta;
+                if (filterOffset > 0) filterOffset = 0;
+                updateFilterUI();
+                aktualisiereAnsicht();
+            }
+
+            function updateFilterUI() {
+                document.querySelectorAll('.filter-tab').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.filter === aktiverFilter);
+                });
+                const zeitraumDiv = document.getElementById('filter-zeitraum');
+                const rechts = document.getElementById('filter-pfeil-rechts');
+                if (aktiverFilter === 'alles') {
+                    zeitraumDiv.style.display = 'none';
+                } else {
+                    zeitraumDiv.style.display = 'flex';
+                    document.getElementById('filter-label').textContent = getFilterZeitraum().label;
+                    rechts.disabled = filterOffset >= 0;
+                }
+            }
+
+            function aktualisiereAnsicht() {
+                const gefiltert = getGefilterteEintraege();
+                zeigeEintraege(gefiltert);
+                renderChart(gefiltert);
+            }
+
+            // === EINTRÄGE ANZEIGEN ===
+
+            function zeigeEintraege(eintraege) {
+                const alleEintraege = JSON.parse(localStorage.getItem('eintraege') || '[]');
+                const fwList = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
+                const liste = document.getElementById('eintraege-liste');
+                const keiner = document.getElementById('keine-eintraege');
+                const anzahl = document.getElementById('filter-anzahl');
+
+                liste.innerHTML = '';
+
+                if (eintraege.length === 0) {
+                    keiner.style.display = 'block';
+                    anzahl.textContent = '';
+                    return;
+                }
+
+                keiner.style.display = 'none';
+                anzahl.textContent = eintraege.length + ' Einträge';
+
+                eintraege.forEach(eintrag => {
+                    const vollIndex = alleEintraege.findIndex(e => e.datum === eintrag.datum);
+                    const div = document.createElement('div');
+                    div.className = 'eintrag-item';
+
+                    let zeilen = '';
+                    Object.entries(eintrag.werte).forEach(([name, data]) => {
+                        const farbe = linienfarben[fwList.indexOf(name) % linienfarben.length] || '#4a7fe5';
+                        zeilen += `
+                            <div class="eintrag-zeile">
+                                <span class="eintrag-punkt" style="background-color: ${farbe};"></span>
+                                <span class="eintrag-fw">${name}</span>
+                                <span class="eintrag-badge" style="background-color: ${farbe}20; color: ${farbe};">${data.wert}/5</span>
+                            </div>
+                            ${data.kommentar ? `<p class="eintrag-kommentar">${data.kommentar}</p>` : ''}
+                        `;
+                    });
+
+                    div.innerHTML = `
+                        <div class="eintrag-header-row">
+                            <div class="eintrag-datum">${eintrag.datum}</div>
+                            <button class="eintrag-edit-btn" onclick="openEintragEdit(${vollIndex})">✎ Bearbeiten</button>
+                        </div>
+                        ${zeilen}
+                    `;
+                    liste.appendChild(div);
+                });
+            }
+
+            // === DIAGRAMM ===
+
+            function renderChart(eintraege) {
+                const fwList = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
+                const placeholder = document.getElementById('chart-placeholder');
+                const canvas = document.getElementById('verlauf-chart');
+
+                if (eintraege.length === 0) {
+                    placeholder.style.display = 'block';
+                    canvas.style.display = 'none';
+                    if (verlaufChart) { verlaufChart.destroy(); verlaufChart = null; }
+                    return;
+                }
+
+                placeholder.style.display = 'none';
+                canvas.style.display = 'block';
+
+                const sortiert = [...eintraege].reverse();
+                const labels = sortiert.map(e => e.datum);
+
+                const datasets = fwList.map((fw, index) => ({
+                    label: fw,
+                    data: sortiert.map(e => e.werte[fw] !== undefined ? e.werte[fw].wert : null),
+                    borderColor: linienfarben[index % linienfarben.length],
+                    backgroundColor: linienfarben[index % linienfarben.length] + '20',
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    spanGaps: true
+                }));
+
+                if (verlaufChart) verlaufChart.destroy();
+
+                verlaufChart = new Chart(canvas, {
+                    type: 'line',
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        scales: { y: { min: 0, max: 5, ticks: { stepSize: 1 } } },
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            // === DRUCKEN ===
+
+            function drucken() {
+                const heute = new Date().toLocaleDateString('de-CH', { day: 'numeric', month: 'long', year: 'numeric' });
+                document.getElementById('print-datum').textContent = 'Erstellt am ' + heute;
+                window.print();
+            }
+
+            // === WEITERES FRÜHWARNZEICHEN ===
+
+            function toggleAddFw() {
+                document.getElementById('add-fw-form').classList.toggle('hidden');
+            }
+
+            function addFruehwarnzeichen() {
+                const input = document.getElementById('add-fw-input');
+                const value = input.value.trim();
+                if (!value) return;
+                const fwList = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
+                if (!fwList.includes(value)) {
+                    fwList.push(value);
+                    localStorage.setItem('fruehwarnzeichen', JSON.stringify(fwList));
+                }
+                input.value = '';
+                document.getElementById('add-fw-form').classList.add('hidden');
+            }
+
+        </script>
+
+    </body>
+</html>
