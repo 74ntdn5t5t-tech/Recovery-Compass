@@ -566,6 +566,51 @@ select.text-input {
     display: none;
 }
 
+.add-kw-bar {
+    text-align: center;
+    color: #4ac98a;
+    font-size: 14px;
+    padding: 14px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    border: 1.5px dashed #4ac98a;
+    border-radius: 14px;
+}
+
+.kw-section-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 24px 0 12px 0;
+    padding-top: 16px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.kw-feld {
+    margin-bottom: 16px;
+}
+
+.kw-feld .text-input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.schlaf-hygiene-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #eef3ff, #f0fff8);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: #1a1a2e;
+    margin-bottom: 16px;
+}
+.schlaf-hygiene-link span { font-size: 14px; font-weight: bold; }
+.schlaf-hygiene-link em { font-size: 12px; color: #888; font-style: normal; display: block; margin-top: 2px; }
+
 .bottom-nav {
     position: fixed;
     bottom: 0;
@@ -603,8 +648,6 @@ select.text-input {
 .nav-label {
     font-size: 10px;
 }
-
-/* === KRISENPLAN === */
 
 .notruf-liste {
     display: flex;
@@ -797,8 +840,6 @@ select.text-input {
     flex-shrink: 0;
 }
 
-/* === VERLAUF FILTER === */
-
 .filter-nav {
     margin-bottom: 16px;
 }
@@ -858,8 +899,6 @@ select.text-input {
     text-align: center;
 }
 
-/* === ALLTAGSMANAGEMENT === */
-
 .ernaehrung-fakt {
     display: flex;
     align-items: center;
@@ -909,9 +948,6 @@ select.text-input {
 }
 
 .ob-skip {
-    position: absolute;
-    top: 20px;
-    right: 20px;
     background: rgba(255, 255, 255, 0.15);
     color: white;
     border: none;
@@ -919,7 +955,8 @@ select.text-input {
     padding: 8px 16px;
     font-size: 13px;
     cursor: pointer;
-    z-index: 10;
+    align-self: flex-end;
+    margin: 16px 16px 0 0;
 }
 
 .ob-slides {
@@ -931,10 +968,7 @@ select.text-input {
 
 .ob-slide {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1000,9 +1034,7 @@ select.text-input {
     backdrop-filter: blur(4px);
 }
 
-.ob-feature-icon {
-    font-size: 32px;
-}
+.ob-feature-icon { font-size: 32px; }
 
 .ob-feature-text {
     font-size: 13px;
@@ -1039,9 +1071,31 @@ select.text-input {
     border-radius: 4px;
 }
 
-.ob-next-btn {
+.ob-footer-btns {
+    display: flex;
+    gap: 12px;
     width: 100%;
     max-width: 320px;
+    align-items: stretch;
+}
+
+#ob-back-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.ob-next-btn {
+    flex: 1;
+    width: auto;
+    max-width: none;
     padding: 18px;
     background: white;
     color: #2a4fa8;
@@ -1059,59 +1113,119 @@ select.text-input {
 }
 
 /* === PRINT === */
-
-.print-header {
-    display: none;
-}
+.print-header { display: none; }
 
 @media print {
+    .no-print, .bottom-nav, #setup-modal, #eintrag-modal { display: none !important; }
+    .print-header { display: block; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #4a7fe5; }
+    .print-titel { font-size: 22px; font-weight: bold; color: #1a1a2e; }
+    .print-datum { font-size: 13px; color: #888; margin-top: 4px; }
+    body { max-width: 100%; padding: 24px; background: white; }
+    .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; margin-bottom: 16px; }
+    .eintrag-edit-btn { display: none !important; }
+    canvas { max-width: 100% !important; }
+}
 
-    .no-print,
-    .bottom-nav,
-    #setup-modal,
-    #eintrag-modal {
-        display: none !important;
-    }
+/* ===== FAB ===== */
+.fab-wrapper {
+    position: fixed;
+    bottom: 76px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 20px;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 900;
+}
+.fab {
+    pointer-events: all;
+    width: 52px;
+    height: 52px;
+    background: #4a7fe5;
+    border-radius: 50%;
+    color: white;
+    font-size: 28px;
+    font-weight: 300;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(74, 127, 229, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
 
-    .print-header {
-        display: block;
-        margin-bottom: 24px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #4a7fe5;
-    }
+/* ===== PWA BANNER ===== */
+.pwa-banner {
+    background: linear-gradient(135deg, #1a1a2e, #2a4fa8);
+    color: white;
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.pwa-banner-icon { font-size: 28px; flex-shrink: 0; }
+.pwa-banner-text { flex: 1; }
+.pwa-banner-text strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.pwa-banner-text span { font-size: 12px; color: rgba(255,255,255,0.7); }
+.pwa-banner-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
 
-    .print-titel {
-        font-size: 22px;
-        font-weight: bold;
-        color: #1a1a2e;
-    }
+/* ===== HEADER ICON ===== */
+.header-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4a7fe5, #2a4fa8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+.header-icon {
+    font-size: 28px;
+}
 
-    .print-datum {
-        font-size: 13px;
-        color: #888;
-        margin-top: 4px;
-    }
+/* ===== KLEINE BUTTONS ===== */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    background: #f0f4ff;
+    color: #4a7fe5;
+    padding: 0 10px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+.btn-icon.danger {
+    background: #fff0f0;
+    color: #e55b4a;
+}
 
-    body {
-        max-width: 100%;
-        padding: 24px;
-        background: white;
-    }
-
-    .card {
-        box-shadow: none;
-        border: 1px solid #ddd;
-        break-inside: avoid;
-        margin-bottom: 16px;
-    }
-
-    .eintrag-edit-btn {
-        display: none !important;
-    }
-
-    canvas {
-        max-width: 100% !important;
-    }
+.filter-tab:disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
 }
 
 /* ===== DASHBOARD ===== */
@@ -1120,7 +1234,6 @@ select.text-input {
     color: white;
     padding: 22px 20px 18px 20px;
 }
-
 .dashboard-greeting {
     font-size: 13px;
     font-weight: bold;
@@ -1129,21 +1242,18 @@ select.text-input {
     color: rgba(255,255,255,0.6);
     margin-bottom: 14px;
 }
-
 .dashboard-stats {
     display: flex;
     align-items: stretch;
     gap: 0;
     margin-bottom: 16px;
 }
-
 .dashboard-stat {
     flex: 1;
     text-align: center;
     cursor: pointer;
     padding: 4px 0;
 }
-
 .dashboard-stat-value {
     font-size: 22px;
     font-weight: bold;
@@ -1151,20 +1261,17 @@ select.text-input {
     line-height: 1.1;
     margin-bottom: 4px;
 }
-
 .dashboard-stat-label {
     font-size: 11px;
     color: rgba(255,255,255,0.6);
     text-transform: uppercase;
     letter-spacing: 0.3px;
 }
-
 .dashboard-sep {
     width: 1px;
     background: rgba(255,255,255,0.15);
     margin: 4px 0;
 }
-
 .dashboard-quick-btn {
     display: block;
     width: 100%;
@@ -1179,7 +1286,6 @@ select.text-input {
     text-align: center;
     box-sizing: border-box;
 }
-
 .dashboard-trend-gut { color: #4ac98a; }
 .dashboard-trend-schlecht { color: #e55b4a; }
 .dashboard-trend-neutral { color: rgba(255,255,255,0.7); }

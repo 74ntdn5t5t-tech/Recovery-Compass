@@ -74,13 +74,27 @@
                     <span class="ob-dot"></span>
                     <span class="ob-dot"></span>
                 </div>
-                <button class="ob-next-btn" id="ob-next-btn" onclick="nextSlide()">Weiter →</button>
+                <div class="ob-footer-btns">
+                    <button id="ob-back-btn" onclick="prevSlide()">← Zurück</button>
+                    <button class="ob-next-btn" id="ob-next-btn" onclick="nextSlide()">Weiter →</button>
+                </div>
             </div>
 
         </div>
 
+        <!-- PWA-Hinweis (nur im Browser, nicht als App) -->
+        <div class="pwa-banner" id="pwa-banner" style="display:none;">
+            <span class="pwa-banner-icon">📲</span>
+            <div class="pwa-banner-text">
+                <strong>Als App installieren</strong>
+                <span>Teilen → „Zum Home-Bildschirm" in Safari</span>
+            </div>
+            <button class="pwa-banner-close" onclick="schliessePwaBanner()">Später</button>
+        </div>
+
         <!-- Hauptinhalt -->
         <div class="header">
+            <div class="header-icon">🧭</div>
             <h1>Recovery Compass</h1>
             <p>Dein persönlicher Begleiter zur Psychoserezidivprävention.</p>
         </div>
@@ -150,7 +164,7 @@
             <div class="card card-nav">
                 <span class="card-nav-icon">🆘</span>
                 <div>
-                    <h3>Hilfe & Krisenplan</h3>
+                    <h3>Notfall & Krisenplan</h3>
                     <p>Notfallkontakte und dein persönlicher Krisenplan.</p>
                 </div>
                 <span class="card-arrow">›</span>
@@ -176,6 +190,8 @@
             window.onload = function() {
                 if (!localStorage.getItem('onboardingDone')) {
                     document.getElementById('onboarding').style.display = 'flex';
+                } else {
+                    zeigePwaBanner();
                 }
                 ladeDashboard();
             }
@@ -216,8 +232,7 @@
                 // Letzter Eintrag
                 const eintraege = JSON.parse(localStorage.getItem('eintraege') || '[]');
                 if (eintraege.length > 0) {
-                    // Datum: z.B. "25.6." (ohne Jahr wenn dieses Jahr)
-                    const letzter = eintraege[0].datum; // de-CH Format: 25.6.2026
+                    const letzter = eintraege[0].datum;
                     const teile = letzter.split('.');
                     const heute = new Date();
                     const eintragJahr = parseInt(teile[2]);
@@ -255,26 +270,36 @@
                     return;
                 }
 
-                // Aktuellen Slide raus
                 const current = document.getElementById('slide-' + currentSlide);
                 current.classList.remove('active');
                 current.classList.add('exit');
 
                 currentSlide++;
 
-                // Nächsten Slide rein
                 const next = document.getElementById('slide-' + currentSlide);
                 next.classList.add('active');
 
-                // Dots aktualisieren
                 document.querySelectorAll('.ob-dot').forEach((dot, i) => {
                     dot.classList.toggle('active', i + 1 === currentSlide);
                 });
 
-                // Letzter Slide: Button-Text ändern
                 if (currentSlide === totalSlides) {
                     document.getElementById('ob-next-btn').textContent = 'Jetzt einrichten →';
                 }
+            }
+
+            function prevSlide() {
+                if (currentSlide <= 1) return;
+                const current = document.getElementById('slide-' + currentSlide);
+                current.classList.remove('active');
+                currentSlide--;
+                const prev = document.getElementById('slide-' + currentSlide);
+                prev.classList.remove('exit');
+                prev.classList.add('active');
+                document.querySelectorAll('.ob-dot').forEach((dot, i) => {
+                    dot.classList.toggle('active', i + 1 === currentSlide);
+                });
+                document.getElementById('ob-next-btn').textContent = currentSlide === totalSlides ? 'Jetzt einrichten →' : 'Weiter →';
             }
 
             function skipOnboarding() {
@@ -293,7 +318,24 @@
                 }, 400);
             }
 
+            function schliessePwaBanner() {
+                document.getElementById('pwa-banner').style.display = 'none';
+                localStorage.setItem('pwaBannerGesehen', 'true');
+            }
+
+            function zeigePwaBanner() {
+                const istStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+                const bereitsGesehen = localStorage.getItem('pwaBannerGesehen');
+                if (!istStandalone && !bereitsGesehen) {
+                    document.getElementById('pwa-banner').style.display = 'flex';
+                }
+            }
+
         </script>
+
+        <div class="fab-wrapper">
+            <button class="fab" onclick="window.location.href='verlauf.html?neu=1'" title="Neuer Eintrag">+</button>
+        </div>
 
     </body>
 </html>
