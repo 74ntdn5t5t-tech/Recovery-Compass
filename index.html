@@ -65,11 +65,34 @@
                     <p class="ob-text">Im nächsten Schritt richtest du deine persönlichen Frühwarnzeichen ein. Das dauert weniger als eine Minute.</p>
                 </div>
 
+                <!-- Slide 5: App installieren -->
+                <div class="ob-slide" id="slide-5">
+                    <div class="ob-icon">📲</div>
+                    <h2 class="ob-title">App installieren</h2>
+                    <p class="ob-text" id="ob-install-text">Füge Recovery Compass zum Homebildschirm hinzu – so hast du immer schnellen Zugriff.</p>
+                    <div id="ob-ios-steps" style="margin-top:20px;text-align:left;width:100%;max-width:280px;">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;background:rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;">
+                            <span style="font-size:20px;">1️⃣</span>
+                            <span style="font-size:14px;line-height:1.4;color:white;">Tippe unten auf das <strong>Teilen</strong>-Symbol <strong>□↑</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;background:rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;">
+                            <span style="font-size:20px;">2️⃣</span>
+                            <span style="font-size:14px;line-height:1.4;color:white;">Scrolle nach unten und wähle <strong>„Zum Home-Bildschirm"</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;">
+                            <span style="font-size:20px;">3️⃣</span>
+                            <span style="font-size:14px;line-height:1.4;color:white;">Tippe <strong>„Hinzufügen"</strong> – fertig!</span>
+                        </div>
+                    </div>
+                    <button id="ob-android-install-btn" onclick="triggerInstall()" style="display:none;margin-top:20px;background:white;color:#4a7fe5;border:none;border-radius:20px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;">📲 App installieren</button>
+                </div>
+
             </div>
 
             <div class="ob-footer">
                 <div class="ob-dots" id="ob-dots">
                     <span class="ob-dot active"></span>
+                    <span class="ob-dot"></span>
                     <span class="ob-dot"></span>
                     <span class="ob-dot"></span>
                     <span class="ob-dot"></span>
@@ -193,7 +216,13 @@
         <script>
 
             let currentSlide = 1;
-            const totalSlides = 4;
+            const totalSlides = 5;
+            let deferredPrompt = null;
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+            });
 
             window.onload = function() {
                 if (!localStorage.getItem('onboardingDone')) {
@@ -293,6 +322,7 @@
 
                 if (currentSlide === totalSlides) {
                     document.getElementById('ob-next-btn').textContent = 'Jetzt einrichten →';
+                    zeigePwaSlide();
                 }
             }
 
@@ -308,6 +338,22 @@
                     dot.classList.toggle('active', i + 1 === currentSlide);
                 });
                 document.getElementById('ob-next-btn').textContent = currentSlide === totalSlides ? 'Jetzt einrichten →' : 'Weiter →';
+            }
+
+            function zeigePwaSlide() {
+                if (deferredPrompt) {
+                    // Android Chrome: Install-Button zeigen
+                    document.getElementById('ob-ios-steps').style.display = 'none';
+                    document.getElementById('ob-android-install-btn').style.display = 'block';
+                    document.getElementById('ob-install-text').textContent = 'Tippe auf "App installieren" um Recovery Compass direkt zum Homebildschirm hinzuzufügen.';
+                }
+                // Sonst: iOS-Schritte (Standard)
+            }
+
+            function triggerInstall() {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
             }
 
             function skipOnboarding() {

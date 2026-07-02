@@ -25,11 +25,6 @@
         </div>
 
         <div class="card">
-            <h3>Quellen & Literatur</h3>
-            <p class="placeholder-text">Inhalt folgt.</p>
-        </div>
-
-        <div class="card">
             <h3>💾 Daten sichern</h3>
             <p style="font-size: 13px; color: #888; margin: 0 0 14px 0;">Lade eine Sicherungskopie deiner App-Daten herunter. So gehen keine Einträge verloren, wenn du das Gerät wechselst.</p>
             <button class="button-secondary" onclick="exportiereAlles()" style="width: 100%; margin-bottom: 10px;">⬇️ Daten herunterladen</button>
@@ -41,7 +36,49 @@
             <button class="button-secondary" onclick="tourWiederholen()" style="width: 100%;">🧭 Onboarding wiederholen</button>
         </div>
 
+        <div class="card" style="text-align: center;">
+            <p style="font-size: 13px; color: #888; margin: 0 0 12px 0;">App noch nicht am Homebildschirm?</p>
+            <button class="button-secondary" onclick="zeigeInstallHilfe()" style="width: 100%;">📲 App installieren</button>
+        </div>
+
+        <!-- Install-Hilfe Modal -->
+        <div id="install-modal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <h2>App installieren</h2>
+                <p style="font-size:13px;color:#888;margin:0 0 16px 0;">So fügst du Recovery Compass zum Homebildschirm hinzu:</p>
+                <div style="text-align:left;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;background:#f0f4ff;border-radius:12px;padding:12px 14px;">
+                        <span style="font-size:20px;">1️⃣</span>
+                        <span style="font-size:14px;line-height:1.4;color:#1a2a4a;">Tippe unten auf das <strong>Teilen</strong>-Symbol <strong>□↑</strong></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;background:#f0f4ff;border-radius:12px;padding:12px 14px;">
+                        <span style="font-size:20px;">2️⃣</span>
+                        <span style="font-size:14px;line-height:1.4;color:#1a2a4a;">Scrolle nach unten und wähle <strong>„Zum Home-Bildschirm"</strong></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;background:#f0f4ff;border-radius:12px;padding:12px 14px;">
+                        <span style="font-size:20px;">3️⃣</span>
+                        <span style="font-size:14px;line-height:1.4;color:#1a2a4a;">Tippe <strong>„Hinzufügen"</strong> – fertig!</span>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('install-modal').classList.add('hidden')" class="button-cancel" style="margin-top:16px;">Schliessen</button>
+            </div>
+        </div>
+
         <script>
+            let deferredInstallPrompt = null;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredInstallPrompt = e;
+            });
+
+            function zeigeInstallHilfe() {
+                if (deferredInstallPrompt) {
+                    deferredInstallPrompt.prompt();
+                } else {
+                    document.getElementById('install-modal').classList.remove('hidden');
+                }
+            }
+
             function tourWiederholen() {
                 localStorage.removeItem('onboardingDone');
                 window.location.href = 'index.html';

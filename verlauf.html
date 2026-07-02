@@ -151,15 +151,8 @@
 
         <!-- Schlaf Card -->
         <div class="card" id="schlaf-card" style="display:none;">
-            <h3>😴 Schlafhygiene & Ritual</h3>
-            <a href="alltagsmanagement.html" class="schlaf-hygiene-link">
-                <div>
-                    <span>Tipps zur Schlafhygiene</span>
-                    <em>Was guten Schlaf fördert</em>
-                </div>
-                <span style="font-size:20px;color:#4a7fe5;">›</span>
-            </a>
-            <p style="font-size:13px;color:#888;margin:0 0 10px 0;">Schreib dein persönliches Schlafritual auf:</p>
+            <h3>😴 Mein Schlafritual</h3>
+            <p style="font-size:13px;color:#888;margin:0 0 14px 0;">Dinge, die mich beim Schlafen unterstützen</p>
             <textarea
                 id="schlafritual-input"
                 class="text-input was-hilft-locked"
@@ -459,7 +452,10 @@
                     div.innerHTML = `
                         <div class="eintrag-header-row">
                             <div class="eintrag-datum">${eintrag.datum}</div>
-                            <button class="btn-icon" onclick="openEintragEdit(${vollIndex})">✎ Bearbeiten</button>
+                            <div style="display:flex;gap:6px;">
+                                <button class="btn-icon" onclick="openEintragEdit(${vollIndex})">✎ Bearbeiten</button>
+                                <button class="btn-icon danger" onclick="loescheEintrag(${vollIndex})">✕ Löschen</button>
+                            </div>
                         </div>
                         ${zeilen}
                     `;
@@ -819,6 +815,14 @@
                 }
 
                 tiles.innerHTML = html;
+            }
+
+            function loescheEintrag(index) {
+                if (!confirm('Diesen Eintrag wirklich löschen?')) return;
+                const eintraege = JSON.parse(localStorage.getItem('eintraege') || '[]');
+                eintraege.splice(index, 1);
+                localStorage.setItem('eintraege', JSON.stringify(eintraege));
+                aktualisiereAnsicht();
             }
 
             // Schlaf-Ritual
