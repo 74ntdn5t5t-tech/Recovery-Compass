@@ -9,7 +9,16 @@
         <link rel="manifest" href="manifest.json">
         <link rel="apple-touch-icon" href="icon.svg">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>body{background-color:#f4f8fb;}</style>
+        <style>
+            body { background-color: #f4f8fb; }
+            .kw-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+            .kw-tile { background: #f0f4ff; border: 1px solid #dde6f7; border-radius: 12px; padding: 10px 12px; }
+            .kw-tile-label { font-size: 11px; font-weight: 600; color: #6b7a99; margin-bottom: 6px; letter-spacing: 0.02em; }
+            .kw-tile-val { font-size: 17px; font-weight: bold; color: #1a2a4a; line-height: 1.1; margin-top: 4px; }
+            .kw-tile-sub { font-size: 10px; color: #9aaccb; margin-top: 2px; }
+            .kw-bar-row { display: flex; align-items: flex-end; gap: 3px; height: 36px; }
+            .kw-bar { border-radius: 2px 2px 0 0; flex: 1; min-width: 0; }
+        </style>
         <link rel="stylesheet" href="style.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     </head>
@@ -57,13 +66,13 @@
 
         <!-- Nur im Druck sichtbar -->
         <div class="print-header">
-            <div class="print-titel">Recovery Compass – Mein Verlauf</div>
+            <div class="print-titel">Recovery Compass – Tagebuch</div>
             <div id="print-datum" class="print-datum"></div>
         </div>
 
         <!-- Hauptinhalt -->
         <div class="header no-print">
-            <h1>Mein Verlauf</h1>
+            <h1>Tagebuch</h1>
             <p>Beobachte und dokumentiere deine Frühwarnzeichen.</p>
         </div>
 
@@ -98,20 +107,82 @@
             <div id="eintraege-liste"></div>
         </div>
 
-        <div class="add-fw-bar no-print" onclick="toggleAddFw()">
+        <div class="add-fw-bar no-print" onclick="openFwPicker()">
             + Weiteres Frühwarnzeichen hinzufügen
         </div>
-        <div id="add-fw-form" class="add-fw-form hidden no-print">
-            <input type="text" id="add-fw-input" placeholder="Frühwarnzeichen eingeben..." class="text-input">
-            <button onclick="addFruehwarnzeichen()" class="button-secondary">Hinzufügen</button>
+
+        <!-- FWZ-Picker Modal -->
+        <div id="fw-picker-modal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <h2>Frühwarnzeichen hinzufügen</h2>
+                <p class="modal-intro">Wähle aus der Liste oder füge ein eigenes hinzu.</p>
+                <div class="fw-liste" id="fw-picker-liste"></div>
+                <div class="custom-add">
+                    <input type="text" id="fw-picker-custom" placeholder="Eigenes Frühwarnzeichen..." class="text-input">
+                    <button onclick="fwPickerCustomAdd()" class="button-secondary">+</button>
+                </div>
+                <button onclick="saveFwPicker()" class="button-primary">Übernehmen</button>
+                <button onclick="closeModal('fw-picker-modal')" class="button-cancel">Abbrechen</button>
+            </div>
+        </div>
+
+        <!-- Körperwerte Picker Modal -->
+        <div id="kw-picker-modal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <h2>Körperwerte tracken</h2>
+                <p class="modal-intro">Wähle aus, was du zusätzlich dokumentieren möchtest.</p>
+                <div class="fw-liste" id="kw-picker-liste"></div>
+                <button onclick="saveKwPicker()" class="button-primary">Speichern</button>
+                <button onclick="closeModal('kw-picker-modal')" class="button-cancel">Abbrechen</button>
+            </div>
+        </div>
+
+        <!-- Körperwerte Bar -->
+        <div class="add-kw-bar no-print" id="kw-bar" onclick="openKwPicker()">
+            + Körperwerte tracken (Schlaf, Gewicht, Blutdruck, Puls)
+        </div>
+
+        <!-- Körperwerte Kacheln -->
+        <div class="card" id="kw-chart-card" style="display:none;">
+            <h3>📊 Körperwerte</h3>
+            <p class="placeholder-text" id="kw-chart-placeholder" style="display:none;">Noch keine Körperwerte eingetragen.</p>
+            <div class="kw-tiles" id="kw-tiles" style="display:none;"></div>
+        </div>
+
+        <!-- Schlaf Card -->
+        <div class="card" id="schlaf-card" style="display:none;">
+            <h3>😴 Schlafhygiene & Ritual</h3>
+            <a href="alltagsmanagement.html" class="schlaf-hygiene-link">
+                <div>
+                    <span>Tipps zur Schlafhygiene</span>
+                    <em>Was guten Schlaf fördert</em>
+                </div>
+                <span style="font-size:20px;color:#4a7fe5;">›</span>
+            </a>
+            <p style="font-size:13px;color:#888;margin:0 0 10px 0;">Schreib dein persönliches Schlafritual auf:</p>
+            <textarea
+                id="schlafritual-input"
+                class="text-input was-hilft-locked"
+                placeholder="z.B. 21 Uhr kein Handy, um 22 Uhr lesen, Verdunkelungsvorhänge..."
+                style="width:100%;height:110px;resize:none;box-sizing:border-box;"
+                readonly
+            ></textarea>
+            <div style="display:flex;gap:8px;margin-top:12px;">
+                <button id="schlafritual-edit-btn" onclick="schlafritualBearbeiten()" class="button-secondary" style="flex:1;">✎ Bearbeiten</button>
+                <button id="schlafritual-save-btn" onclick="schlafritualSpeichern()" class="button-primary" style="flex:1;margin:0;display:none;">Speichern</button>
+            </div>
+        </div>
+
+        <div class="fab-wrapper no-print">
+            <button class="fab" onclick="openEintrag()" title="Neuer Eintrag">+</button>
         </div>
 
         <nav class="bottom-nav">
             <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></a>
-            <a href="verlauf.html" class="nav-item active"><span class="nav-icon">📈</span><span class="nav-label">Verlauf</span></a>
+            <a href="verlauf.html" class="nav-item active"><span class="nav-icon">📈</span><span class="nav-label">Tagebuch</span></a>
             <a href="wissen.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-label">Wissen</span></a>
             <a href="medikamente.html" class="nav-item"><span class="nav-icon">💊</span><span class="nav-label">Medikamente</span></a>
-            <a href="krisenplan.html" class="nav-item"><span class="nav-icon">🆘</span><span class="nav-label">Krisenplan</span></a>
+            <a href="krisenplan.html" class="nav-item"><span class="nav-icon">🆘</span><span class="nav-label">Notfall</span></a>
         </nav>
 
         <script>
@@ -126,19 +197,16 @@
             let aktiverFilter = 'monat';
             let filterOffset = 0;
 
-            // Hilfsfunktion: de-CH Datum (25.6.2026) → Date-Objekt
             function parseDatum(str) {
                 const t = str.split('.');
                 return new Date(t[2], t[1] - 1, t[0]);
             }
 
-            // Hilfsfunktion: ISO-Datum (2026-06-25) → de-CH (25.6.2026)
             function isoZuDeCH(iso) {
                 const t = iso.split('-');
                 return `${parseInt(t[2])}.${parseInt(t[1])}.${t[0]}`;
             }
 
-            // Hilfsfunktion: de-CH → ISO für date-Input
             function deCHZuIso(deCH) {
                 const t = deCH.split('.');
                 return `${t[2]}-${t[1].padStart(2,'0')}-${t[0].padStart(2,'0')}`;
@@ -149,8 +217,10 @@
                     document.getElementById('setup-modal').classList.remove('hidden');
                 }
                 updateFilterUI();
+                updateFilterTabsVerfuegbarkeit();
+                updateKwSections();
+                ladeSchlafritual();
                 aktualisiereAnsicht();
-                // Schnell-Eintrag via ?neu=1 (z.B. vom Dashboard)
                 if (new URLSearchParams(window.location.search).get('neu') === '1') {
                     openEintrag();
                 }
@@ -159,8 +229,6 @@
             function closeModal(id) {
                 document.getElementById(id).classList.add('hidden');
             }
-
-            // === SETUP ===
 
             function addCustomSetup() {
                 const input = document.getElementById('custom-input');
@@ -187,9 +255,7 @@
                 closeModal('setup-modal');
             }
 
-            // === EINTRAG FORMULAR AUFBAUEN ===
-
-            function buildForm(existingWerte) {
+            function buildForm(existingWerte, existingKw) {
                 const fwList = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
                 const form = document.getElementById('eintrag-form');
                 form.innerHTML = '';
@@ -215,20 +281,22 @@
                     `;
                     form.appendChild(div);
                 });
+                const kwHtml = buildKwFormSection(existingKw || null);
+                if (kwHtml) {
+                    const kwDiv = document.createElement('div');
+                    kwDiv.innerHTML = kwHtml;
+                    form.appendChild(kwDiv);
+                }
             }
-
-            // === NEUER EINTRAG ===
 
             function openEintrag() {
                 editIndex = null;
                 document.getElementById('modal-titel').textContent = 'Neuer Eintrag';
                 const heute = new Date().toISOString().split('T')[0];
                 document.getElementById('eintrag-datum').value = heute;
-                buildForm(null);
+                buildForm(null, null);
                 document.getElementById('eintrag-modal').classList.remove('hidden');
             }
-
-            // === EINTRAG BEARBEITEN ===
 
             function openEintragEdit(index) {
                 editIndex = index;
@@ -236,28 +304,29 @@
                 const eintraege = JSON.parse(localStorage.getItem('eintraege') || '[]');
                 const eintrag = eintraege[index];
                 document.getElementById('eintrag-datum').value = deCHZuIso(eintrag.datum);
-                buildForm(eintrag.werte);
+                buildForm(eintrag.werte, eintrag.koerperwerte || null);
                 document.getElementById('eintrag-modal').classList.remove('hidden');
             }
 
-            // === SPEICHERN ===
-
             function saveEintrag() {
-                const sliders = document.querySelectorAll('#eintrag-form .slider');
+                const sliders = document.querySelectorAll('#eintrag-form .slider[data-name]');
                 const kommentare = document.querySelectorAll('#eintrag-form .kommentar-input');
                 const werte = {};
 
                 sliders.forEach((slider, i) => {
                     werte[slider.dataset.name] = {
                         wert: parseInt(slider.value),
-                        kommentar: kommentare[i].value.trim()
+                        kommentar: kommentare[i] ? kommentare[i].value.trim() : ''
                     };
                 });
 
                 const datumIso = document.getElementById('eintrag-datum').value;
                 const datum = datumIso ? isoZuDeCH(datumIso) : new Date().toLocaleDateString('de-CH');
 
+                const kwData = getKwFormData();
                 const eintrag = { datum, werte };
+                if (kwData) eintrag.koerperwerte = kwData;
+
                 const eintraege = JSON.parse(localStorage.getItem('eintraege') || '[]');
 
                 if (editIndex !== null) {
@@ -266,15 +335,11 @@
                     eintraege.unshift(eintrag);
                 }
 
-                // Nach Datum sortieren (neueste zuerst)
                 eintraege.sort((a, b) => parseDatum(b.datum) - parseDatum(a.datum));
-
                 localStorage.setItem('eintraege', JSON.stringify(eintraege));
                 closeModal('eintrag-modal');
                 aktualisiereAnsicht();
             }
-
-            // === FILTER ===
 
             function getFilterZeitraum() {
                 const heute = new Date();
@@ -352,9 +417,8 @@
                 const gefiltert = getGefilterteEintraege();
                 zeigeEintraege(gefiltert);
                 renderChart(gefiltert);
+                renderKwTiles(gefiltert);
             }
-
-            // === EINTRÄGE ANZEIGEN ===
 
             function zeigeEintraege(eintraege) {
                 const alleEintraege = JSON.parse(localStorage.getItem('eintraege') || '[]');
@@ -395,15 +459,13 @@
                     div.innerHTML = `
                         <div class="eintrag-header-row">
                             <div class="eintrag-datum">${eintrag.datum}</div>
-                            <button class="eintrag-edit-btn" onclick="openEintragEdit(${vollIndex})">✎ Bearbeiten</button>
+                            <button class="btn-icon" onclick="openEintragEdit(${vollIndex})">✎ Bearbeiten</button>
                         </div>
                         ${zeilen}
                     `;
                     liste.appendChild(div);
                 });
             }
-
-            // === DIAGRAMM ===
 
             function renderChart(eintraege) {
                 const fwList = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
@@ -447,31 +509,337 @@
                 });
             }
 
-            // === DRUCKEN ===
-
             function drucken() {
                 const heute = new Date().toLocaleDateString('de-CH', { day: 'numeric', month: 'long', year: 'numeric' });
                 document.getElementById('print-datum').textContent = 'Erstellt am ' + heute;
                 window.print();
             }
 
-            // === WEITERES FRÜHWARNZEICHEN ===
+            const ALLE_FWZ = [
+                'Schlafprobleme', 'Misstrauen', 'Sozialer Rückzug', 'Innere Unruhe',
+                'Konzentrationsprobleme', 'Gereiztheit', 'Stimmungsschwankungen',
+                'Gedankenrasen', 'Appetitverlust', 'Vernachlässigung der Körperpflege'
+            ];
 
-            function toggleAddFw() {
-                document.getElementById('add-fw-form').classList.toggle('hidden');
+            function openFwPicker() {
+                const aktive = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
+                const liste = document.getElementById('fw-picker-liste');
+                liste.innerHTML = '';
+                const verfuegbar = ALLE_FWZ.filter(fw => !aktive.includes(fw));
+                if (verfuegbar.length === 0) {
+                    liste.innerHTML = '<p style="color:#aaa;font-size:13px;">Alle vordefinierten Frühwarnzeichen sind bereits aktiv.</p>';
+                } else {
+                    verfuegbar.forEach(fw => {
+                        const label = document.createElement('label');
+                        label.className = 'fw-item';
+                        label.innerHTML = `<input type="checkbox" class="fw-picker-cb" value="${fw}"><span>${fw}</span>`;
+                        liste.appendChild(label);
+                    });
+                }
+                document.getElementById('fw-picker-custom').value = '';
+                document.getElementById('fw-picker-modal').classList.remove('hidden');
             }
 
-            function addFruehwarnzeichen() {
-                const input = document.getElementById('add-fw-input');
-                const value = input.value.trim();
-                if (!value) return;
-                const fwList = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
-                if (!fwList.includes(value)) {
-                    fwList.push(value);
-                    localStorage.setItem('fruehwarnzeichen', JSON.stringify(fwList));
-                }
+            function fwPickerCustomAdd() {
+                const input = document.getElementById('fw-picker-custom');
+                const val = input.value.trim();
+                if (!val) return;
+                const liste = document.getElementById('fw-picker-liste');
+                const label = document.createElement('label');
+                label.className = 'fw-item';
+                label.innerHTML = `<input type="checkbox" class="fw-picker-cb" value="${val}" checked><span>${val}</span>`;
+                liste.appendChild(label);
                 input.value = '';
-                document.getElementById('add-fw-form').classList.add('hidden');
+            }
+
+            function saveFwPicker() {
+                const fwList = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
+                document.querySelectorAll('.fw-picker-cb:checked').forEach(cb => {
+                    if (!fwList.includes(cb.value)) fwList.push(cb.value);
+                });
+                localStorage.setItem('fruehwarnzeichen', JSON.stringify(fwList));
+                closeModal('fw-picker-modal');
+                aktualisiereAnsicht();
+            }
+
+            function updateFilterTabsVerfuegbarkeit() {
+                const eintraege = JSON.parse(localStorage.getItem('eintraege') || '[]');
+                if (eintraege.length === 0) return;
+                const aeltester = parseDatum(eintraege[eintraege.length - 1].datum);
+                const heute = new Date();
+                const tageAlt = (heute - aeltester) / (1000 * 60 * 60 * 24);
+                document.querySelector('[data-filter="monat"]').disabled = tageAlt < 7;
+                document.querySelector('[data-filter="3monate"]').disabled = tageAlt < 30;
+            }
+
+            // ── Körperwerte ──────────────────────────────────────────────
+
+            const KW_OPTIONEN = [
+                { id: 'schlaf',     label: '😴 Schlaf (Stunden, Qualität, Zeiten)' },
+                { id: 'gewicht',    label: '⚖️ Gewicht (kg)' },
+                { id: 'blutdruck',  label: '💓 Blutdruck (mmHg)' },
+                { id: 'puls',       label: '❤️ Puls (bpm)' }
+            ];
+
+            function getAktiveKw() {
+                return JSON.parse(localStorage.getItem('koerperwerte_aktiv') || '[]');
+            }
+
+            function openKwPicker() {
+                const aktiv = getAktiveKw();
+                const liste = document.getElementById('kw-picker-liste');
+                liste.innerHTML = '';
+                KW_OPTIONEN.forEach(opt => {
+                    const label = document.createElement('label');
+                    label.className = 'fw-item';
+                    label.innerHTML = `<input type="checkbox" class="kw-picker-cb" value="${opt.id}" ${aktiv.includes(opt.id) ? 'checked' : ''}><span>${opt.label}</span>`;
+                    liste.appendChild(label);
+                });
+                document.getElementById('kw-picker-modal').classList.remove('hidden');
+            }
+
+            function saveKwPicker() {
+                const ausgewaehlt = [];
+                document.querySelectorAll('.kw-picker-cb:checked').forEach(cb => ausgewaehlt.push(cb.value));
+                localStorage.setItem('koerperwerte_aktiv', JSON.stringify(ausgewaehlt));
+                closeModal('kw-picker-modal');
+                updateKwSections();
+                renderKwTiles(getGefilterteEintraege());
+            }
+
+            function updateKwSections() {
+                const aktiv = getAktiveKw();
+                document.getElementById('schlaf-card').style.display = aktiv.includes('schlaf') ? 'block' : 'none';
+                document.getElementById('kw-chart-card').style.display = aktiv.length > 0 ? 'block' : 'none';
+                document.getElementById('kw-bar').textContent = aktiv.length > 0
+                    ? '⚙️ Körperwerte anpassen'
+                    : '+ Körperwerte tracken (Schlaf, Gewicht, Blutdruck, Puls)';
+            }
+
+            function buildKwFormSection(existingKw) {
+                const aktiv = getAktiveKw();
+                if (aktiv.length === 0) return '';
+                let html = '<div class="kw-section-title">Körperwerte</div>';
+
+                if (aktiv.includes('schlaf')) {
+                    const von = existingKw?.schlaf_von || '';
+                    const bis = existingKw?.schlaf_bis || '';
+                    const auf = existingKw?.schlaf_malAufgewacht ?? '';
+                    const qual = existingKw?.schlaf_qualitaet ?? 3;
+                    html += `
+                        <div class="kw-feld"><label class="datum-label">Eingeschlafen um</label>
+                            <input type="time" id="kw-schlaf-von" class="text-input" value="${von}"></div>
+                        <div class="kw-feld"><label class="datum-label">Aufgewacht um</label>
+                            <input type="time" id="kw-schlaf-bis" class="text-input" value="${bis}"></div>
+                        <div class="kw-feld"><label class="datum-label">Wie oft aufgewacht (Anzahl)</label>
+                            <input type="number" id="kw-schlaf-auf" class="text-input" min="0" max="20" value="${auf}" placeholder="0"></div>
+                        <div class="kw-feld"><label class="datum-label">Schlafqualität: <span id="kw-qual-wert" style="color:#4a7fe5;font-weight:bold;">${qual}</span>/5</label>
+                            <input type="range" min="0" max="5" value="${qual}" class="slider"
+                                   oninput="document.getElementById('kw-qual-wert').textContent=this.value" id="kw-schlaf-qual">
+                            <div class="slider-labels"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+                        </div>`;
+                }
+                if (aktiv.includes('gewicht')) {
+                    const val = existingKw?.gewicht || '';
+                    html += `<div class="kw-feld"><label class="datum-label">Gewicht (kg)</label>
+                        <input type="number" id="kw-gewicht" class="text-input" step="0.1" min="30" max="300" value="${val}" placeholder="z.B. 72.5"></div>`;
+                }
+                if (aktiv.includes('blutdruck')) {
+                    const sys = existingKw?.blutdruck_sys || '';
+                    const dia = existingKw?.blutdruck_dia || '';
+                    html += `<div class="kw-feld"><label class="datum-label">Blutdruck (mmHg)</label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="number" id="kw-bd-sys" class="text-input" min="60" max="250" value="${sys}" placeholder="Systolisch">
+                            <span style="color:#888;padding:0 4px;">/</span>
+                            <input type="number" id="kw-bd-dia" class="text-input" min="40" max="150" value="${dia}" placeholder="Diastolisch">
+                        </div></div>`;
+                }
+                if (aktiv.includes('puls')) {
+                    const val = existingKw?.puls || '';
+                    html += `<div class="kw-feld"><label class="datum-label">Puls (bpm)</label>
+                        <input type="number" id="kw-puls" class="text-input" min="30" max="220" value="${val}" placeholder="z.B. 72"></div>`;
+                }
+                return html;
+            }
+
+            function getKwFormData() {
+                const aktiv = getAktiveKw();
+                if (aktiv.length === 0) return null;
+                const kw = {};
+                if (aktiv.includes('schlaf')) {
+                    const von = document.getElementById('kw-schlaf-von')?.value;
+                    const bis = document.getElementById('kw-schlaf-bis')?.value;
+                    if (von) kw.schlaf_von = von;
+                    if (bis) kw.schlaf_bis = bis;
+                    if (von && bis) {
+                        let vonMin = parseInt(von.split(':')[0]) * 60 + parseInt(von.split(':')[1]);
+                        let bisMin = parseInt(bis.split(':')[0]) * 60 + parseInt(bis.split(':')[1]);
+                        if (bisMin < vonMin) bisMin += 1440;
+                        kw.schlaf_stunden = Math.round((bisMin - vonMin) / 60 * 10) / 10;
+                    }
+                    const auf = parseInt(document.getElementById('kw-schlaf-auf')?.value);
+                    if (!isNaN(auf)) kw.schlaf_malAufgewacht = auf;
+                    kw.schlaf_qualitaet = parseInt(document.getElementById('kw-schlaf-qual')?.value) || 0;
+                }
+                if (aktiv.includes('gewicht')) {
+                    const v = parseFloat(document.getElementById('kw-gewicht')?.value);
+                    if (!isNaN(v)) kw.gewicht = v;
+                }
+                if (aktiv.includes('blutdruck')) {
+                    const sys = parseInt(document.getElementById('kw-bd-sys')?.value);
+                    const dia = parseInt(document.getElementById('kw-bd-dia')?.value);
+                    if (!isNaN(sys)) kw.blutdruck_sys = sys;
+                    if (!isNaN(dia)) kw.blutdruck_dia = dia;
+                }
+                if (aktiv.includes('puls')) {
+                    const v = parseInt(document.getElementById('kw-puls')?.value);
+                    if (!isNaN(v)) kw.puls = v;
+                }
+                return Object.keys(kw).length > 0 ? kw : null;
+            }
+
+            // Sparkline SVG aus einer oder mehreren Datenreihen
+            function buildSparkline(seriesArray, colors) {
+                const W = 100, H = 36;
+                const allVals = seriesArray.flat().filter(v => v !== null);
+                if (allVals.length === 0) return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:36px;display:block;margin-bottom:6px;"></svg>`;
+                const minV = Math.min(...allVals);
+                const maxV = Math.max(...allVals);
+                const range = maxV - minV || 1;
+
+                let paths = '';
+                seriesArray.forEach((series, si) => {
+                    const pts = [];
+                    series.forEach((v, i) => {
+                        if (v === null) return;
+                        const x = Math.round((i / Math.max(series.length - 1, 1)) * W);
+                        const y = Math.round(H - ((v - minV) / range) * (H - 8) - 4);
+                        pts.push(`${x},${y}`);
+                    });
+                    if (pts.length > 1) {
+                        paths += `<polyline points="${pts.join(' ')}" fill="none" stroke="${colors[si]}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+                        const last = pts[pts.length - 1].split(',');
+                        paths += `<circle cx="${last[0]}" cy="${last[1]}" r="3" fill="${colors[si]}"/>`;
+                    } else if (pts.length === 1) {
+                        const [cx, cy] = pts[0].split(',');
+                        paths += `<circle cx="${cx}" cy="${cy}" r="3.5" fill="${colors[si]}"/>`;
+                    }
+                });
+                return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:36px;display:block;margin-bottom:6px;" aria-hidden="true">${paths}</svg>`;
+            }
+
+            function renderKwTiles(eintraege) {
+                const aktiv = getAktiveKw();
+                const card = document.getElementById('kw-chart-card');
+                const placeholder = document.getElementById('kw-chart-placeholder');
+                const tiles = document.getElementById('kw-tiles');
+
+                if (aktiv.length === 0) { card.style.display = 'none'; return; }
+                card.style.display = 'block';
+
+                const mitKw = eintraege.filter(e => e.koerperwerte && Object.keys(e.koerperwerte).length > 0);
+
+                if (mitKw.length === 0) {
+                    placeholder.style.display = 'block';
+                    tiles.style.display = 'none';
+                    return;
+                }
+                placeholder.style.display = 'none';
+                tiles.style.display = 'grid';
+
+                const sortiert = [...mitKw].reverse(); // älteste zuerst → Trend von links nach rechts
+                let html = '';
+
+                // Schlaf-Kachel: Balken, Farbe = Qualität
+                if (aktiv.includes('schlaf')) {
+                    const last7 = sortiert.slice(-7);
+                    const maxH = Math.max(...last7.map(e => e.koerperwerte?.schlaf_stunden || 0), 8);
+                    let bars = '';
+                    last7.forEach(e => {
+                        const h = e.koerperwerte?.schlaf_stunden ?? null;
+                        const q = e.koerperwerte?.schlaf_qualitaet ?? null;
+                        const pct = h !== null ? Math.max(Math.round((h / maxH) * 100), 6) : 6;
+                        const col = q === null ? '#ccc' : q >= 4 ? '#4ac98a' : q >= 2 ? '#f0a500' : '#e55b4a';
+                        bars += `<div class="kw-bar" style="height:${pct}%;background:${col};opacity:${h !== null ? 1 : 0.25};"></div>`;
+                    });
+                    const latestEntry = [...sortiert].reverse().find(e => e.koerperwerte?.schlaf_stunden != null);
+                    const latestH = latestEntry?.koerperwerte?.schlaf_stunden;
+                    const latestQ = latestEntry?.koerperwerte?.schlaf_qualitaet;
+                    const valStr = latestH != null ? latestH.toFixed(1) + ' Std.' : '–';
+                    const subStr = latestQ != null ? `Qualität ${latestQ}/5` : '';
+                    html += `<div class="kw-tile">
+                        <div class="kw-tile-label">😴 Schlaf</div>
+                        <div class="kw-bar-row">${bars}</div>
+                        <div class="kw-tile-val">${valStr}</div>
+                        ${subStr ? `<div class="kw-tile-sub">${subStr}</div>` : ''}
+                    </div>`;
+                }
+
+                // Blutdruck-Kachel: zwei Linien (sys + dia)
+                if (aktiv.includes('blutdruck')) {
+                    const sysVals = sortiert.map(e => e.koerperwerte?.blutdruck_sys ?? null);
+                    const diaVals = sortiert.map(e => e.koerperwerte?.blutdruck_dia ?? null);
+                    const svg = buildSparkline([sysVals, diaVals], ['#e55b4a', '#e5944a']);
+                    const latestSys = [...sysVals].filter(v => v !== null).pop();
+                    const latestDia = [...diaVals].filter(v => v !== null).pop();
+                    const valStr = latestSys != null && latestDia != null ? `${latestSys} / ${latestDia}` : '–';
+                    html += `<div class="kw-tile">
+                        <div class="kw-tile-label">💓 Blutdruck</div>
+                        ${svg}
+                        <div class="kw-tile-val">${valStr}</div>
+                        <div class="kw-tile-sub">mmHg</div>
+                    </div>`;
+                }
+
+                // Puls-Kachel
+                if (aktiv.includes('puls')) {
+                    const vals = sortiert.map(e => e.koerperwerte?.puls ?? null);
+                    const svg = buildSparkline([vals], ['#9b4ae5']);
+                    const latest = [...vals].filter(v => v !== null).pop();
+                    html += `<div class="kw-tile">
+                        <div class="kw-tile-label">❤️ Puls</div>
+                        ${svg}
+                        <div class="kw-tile-val">${latest ?? '–'}</div>
+                        <div class="kw-tile-sub">bpm</div>
+                    </div>`;
+                }
+
+                // Gewicht-Kachel
+                if (aktiv.includes('gewicht')) {
+                    const vals = sortiert.map(e => e.koerperwerte?.gewicht ?? null);
+                    const svg = buildSparkline([vals], ['#f0a500']);
+                    const latest = [...vals].filter(v => v !== null).pop();
+                    const valStr = latest != null ? latest.toFixed(1) : '–';
+                    html += `<div class="kw-tile">
+                        <div class="kw-tile-label">⚖️ Gewicht</div>
+                        ${svg}
+                        <div class="kw-tile-val">${valStr}</div>
+                        <div class="kw-tile-sub">kg</div>
+                    </div>`;
+                }
+
+                tiles.innerHTML = html;
+            }
+
+            // Schlaf-Ritual
+            function ladeSchlafritual() {
+                document.getElementById('schlafritual-input').value = localStorage.getItem('schlafritual') || '';
+                setSchlafritualSperrmodus(true);
+            }
+            function setSchlafritualSperrmodus(gesperrt) {
+                const ta = document.getElementById('schlafritual-input');
+                const editBtn = document.getElementById('schlafritual-edit-btn');
+                const saveBtn = document.getElementById('schlafritual-save-btn');
+                ta.readOnly = gesperrt;
+                ta.classList.toggle('was-hilft-locked', gesperrt);
+                editBtn.style.display = gesperrt ? 'block' : 'none';
+                saveBtn.style.display = gesperrt ? 'none' : 'block';
+                if (!gesperrt) ta.focus();
+            }
+            function schlafritualBearbeiten() { setSchlafritualSperrmodus(false); }
+            function schlafritualSpeichern() {
+                localStorage.setItem('schlafritual', document.getElementById('schlafritual-input').value.trim());
+                setSchlafritualSperrmodus(true);
             }
 
         </script>

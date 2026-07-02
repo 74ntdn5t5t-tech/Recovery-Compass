@@ -83,10 +83,10 @@
 
         <nav class="bottom-nav">
             <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></a>
-            <a href="verlauf.html" class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">Verlauf</span></a>
+            <a href="verlauf.html" class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">Tagebuch</span></a>
             <a href="wissen.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-label">Wissen</span></a>
             <a href="medikamente.html" class="nav-item active"><span class="nav-icon">💊</span><span class="nav-label">Medikamente</span></a>
-            <a href="krisenplan.html" class="nav-item"><span class="nav-icon">🆘</span><span class="nav-label">Krisenplan</span></a>
+            <a href="krisenplan.html" class="nav-item"><span class="nav-icon">🆘</span><span class="nav-label">Notfall</span></a>
         </nav>
 
         <script>
@@ -104,7 +104,6 @@
                 document.getElementById(id).classList.add('hidden');
             }
 
-            // Datum für einen Offset berechnen
             function datumFuerOffset(offset) {
                 const d = new Date();
                 d.setDate(d.getDate() + offset);
@@ -122,13 +121,11 @@
                 return d.toLocaleDateString('de-CH', { weekday: 'short', day: 'numeric', month: 'numeric', year: 'numeric' });
             }
 
-            // Tag wechseln
             function changeDay(offset) {
                 currentDayOffset += offset;
                 renderTagesplan();
             }
 
-            // Tagesplan rendern
             function renderTagesplan() {
                 const d = datumFuerOffset(currentDayOffset);
                 const key = 'einnahme_' + datumAlsKey(d);
@@ -144,7 +141,6 @@
                     return;
                 }
 
-                // Zeitslots erstellen
                 const slots = [];
                 meds.forEach(m => {
                     if (m.haeufigkeit === '0' || !m.uhrzeiten || m.uhrzeiten.length === 0) {
@@ -156,7 +152,6 @@
                     }
                 });
 
-                // Nach Uhrzeit sortieren
                 slots.sort((a, b) => {
                     if (a.zeit === 'Nach Bedarf' || a.zeit === '–') return 1;
                     if (b.zeit === 'Nach Bedarf' || b.zeit === '–') return -1;
@@ -183,7 +178,6 @@
                 });
             }
 
-            // Einnahme-Slot togglen
             function toggleSlot(slotKey, datumKey) {
                 const key = 'einnahme_' + datumKey;
                 const einnahmen = JSON.parse(localStorage.getItem(key) || '{}');
@@ -192,7 +186,6 @@
                 renderTagesplan();
             }
 
-            // Uhrzeiten-Felder dynamisch anpassen
             function updateUhrzeiten(prefill) {
                 const anzahl = parseInt(document.getElementById('med-haeufigkeit').value);
                 const container = document.getElementById('uhrzeiten-container');
@@ -302,8 +295,8 @@
                         <div class="med-details">${haeufigkeitText}${uhrzeitText ? ' · ' + uhrzeitText : ''}</div>
                         ${m.notizen ? `<div class="med-notiz">${m.notizen}</div>` : ''}
                         <div class="med-actions">
-                            <button class="eintrag-edit-btn" onclick="openMedEdit(${index})">✎ Bearbeiten</button>
-                            <button class="eintrag-edit-btn med-delete" onclick="deleteMed(${index})">✕ Löschen</button>
+                            <button class="btn-icon" onclick="openMedEdit(${index})">✎ Bearbeiten</button>
+                            <button class="btn-icon danger" onclick="deleteMed(${index})">✕ Löschen</button>
                         </div>
                     `;
                     liste.appendChild(card);
@@ -311,6 +304,10 @@
             }
 
         </script>
+
+        <div class="fab-wrapper">
+            <button class="fab" onclick="window.location.href='verlauf.html?neu=1'" title="Neuer Eintrag">+</button>
+        </div>
 
     </body>
 </html>

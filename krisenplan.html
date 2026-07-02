@@ -34,7 +34,7 @@
         </div>
 
         <div class="header">
-            <h1>Hilfe & Krisenplan</h1>
+            <h1>Notfall &amp; Krisenplan</h1>
             <p>Dein persönlicher Plan für schwierige Momente.</p>
         </div>
 
@@ -171,10 +171,10 @@
 
         <nav class="bottom-nav">
             <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></a>
-            <a href="verlauf.html" class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">Verlauf</span></a>
+            <a href="verlauf.html" class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">Tagebuch</span></a>
             <a href="wissen.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-label">Wissen</span></a>
             <a href="medikamente.html" class="nav-item"><span class="nav-icon">💊</span><span class="nav-label">Medikamente</span></a>
-            <a href="krisenplan.html" class="nav-item active"><span class="nav-icon">🆘</span><span class="nav-label">Krisenplan</span></a>
+            <a href="krisenplan.html" class="nav-item active"><span class="nav-icon">🆘</span><span class="nav-label">Notfall</span></a>
         </nav>
 
         <script>
@@ -191,7 +191,6 @@
                 document.getElementById(id).classList.add('hidden');
             }
 
-            // Frühwarnzeichen aus localStorage
             function zeigeFruehwarnzeichen() {
                 const fwList = JSON.parse(localStorage.getItem('fruehwarnzeichen') || '[]');
                 const container = document.getElementById('kp-fruehwarnzeichen');
@@ -205,7 +204,6 @@
                 });
             }
 
-            // Was hilft mir
             function ladeWasHilft() {
                 const text = localStorage.getItem('wasHilftMir') || '';
                 const textarea = document.getElementById('was-hilft-input');
@@ -231,9 +229,7 @@
                 }
             }
 
-            function wasHilftBearbeiten() {
-                setSperrmodus(false);
-            }
+            function wasHilftBearbeiten() { setSperrmodus(false); }
 
             function saveWasHilft() {
                 const text = document.getElementById('was-hilft-input').value.trim();
@@ -241,7 +237,6 @@
                 setSperrmodus(true);
             }
 
-            // Kontakte
             function openKontaktModal() {
                 editKontaktIndex = null;
                 document.getElementById('kontakt-modal-titel').textContent = 'Kontakt hinzufügen';
@@ -305,8 +300,8 @@
                         </div>
                         <div class="kontakt-actions">
                             ${k.telefon ? `<a href="tel:${k.telefon}" class="kontakt-anrufen-btn">📞 Anrufen</a>` : ''}
-                            <button class="eintrag-edit-btn" onclick="openKontaktEdit(${index})">✎</button>
-                            <button class="eintrag-edit-btn med-delete" onclick="deleteKontakt(${index})">✕</button>
+                            <button class="btn-icon" onclick="openKontaktEdit(${index})">✎</button>
+                            <button class="btn-icon danger" onclick="deleteKontakt(${index})">✕</button>
                         </div>
                     `;
                     liste.appendChild(div);
@@ -314,6 +309,10 @@
             }
 
         </script>
+
+        <div class="fab-wrapper">
+            <button class="fab" onclick="window.location.href='verlauf.html?neu=1'" title="Neuer Eintrag">+</button>
+        </div>
 
     </body>
 </html>

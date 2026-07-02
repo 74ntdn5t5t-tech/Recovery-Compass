@@ -9,7 +9,13 @@
         <link rel="manifest" href="manifest.json">
         <link rel="apple-touch-icon" href="icon.svg">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>body{background-color:#f4f8fb;}</style>
+        <style>
+            body { background-color: #f4f8fb; }
+            .quellen { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e8ecf5; }
+            .quellen-titel { font-size: 11px; font-weight: 600; color: #b0bcd4; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 0.05em; }
+            .quellen ul { margin: 0; padding-left: 16px; }
+            .quellen li { font-size: 11px; color: #b0bcd4; line-height: 1.5; margin-bottom: 4px; }
+        </style>
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
@@ -20,35 +26,95 @@
         </div>
 
         <div class="card">
-            <h3>Schlaf</h3>
-            <p class="placeholder-text">Inhalt folgt.</p>
+            <h3>😴 Schlaf</h3>
+            <p>Ein guter Schlaf hilft deinem Körper und deinem Gehirn, sich zu erholen. Veränderungen beim Schlaf gehören häufig zu den ersten Anzeichen, dass sich deine psychische Gesundheit verändert. Vielleicht schläfst du schlechter ein, wachst häufiger auf oder bist tagsüber sehr müde.</p>
+            <p>Wenn du solche Veränderungen bemerkst, lohnt es sich, genauer hinzuschauen.</p>
+            <a href="verlauf.html" class="schlaf-hygiene-link" style="margin-top:12px;">
+                <div>
+                    <span>Schlaf im Tagebuch tracken</span>
+                    <em>Stunden, Qualität und Zeiten erfassen</em>
+                </div>
+                <span style="font-size:20px;color:#4a7fe5;">›</span>
+            </a>
+            <div class="quellen">
+                <p class="quellen-titel">Quelle</p>
+                <ul>
+                    <li>Lahti, A. C., Wang, D., Pei, H., Baker, S., &amp; Narayan, V. A. (2021). Clinical utility of wearable sensors and patient-reported surveys in patients with schizophrenia. <em>JMIR Mental Health, 8</em>(8), e26234.</li>
+                </ul>
+            </div>
         </div>
 
         <div class="card">
-            <h3>Stress</h3>
-            <p class="placeholder-text">Inhalt folgt.</p>
+            <h3>😤 Stress</h3>
+            <p>Stress gehört zum Alltag und lässt sich nicht immer vermeiden. Wenn Stress jedoch über längere Zeit anhält, kann er deine psychische Gesundheit belasten. Deshalb ist es wichtig, auf dein eigenes Stressgefühl zu achten und herauszufinden, was dir hilft, wieder zur Ruhe zu kommen.</p>
+            <p>Schon kleine Pausen, Entspannungsübungen oder Gespräche mit vertrauten Menschen können hilfreich sein.</p>
+            <div class="quellen">
+                <p class="quellen-titel">Quellen</p>
+                <ul>
+                    <li>Chien, W. T., et al. (2025). Effectiveness of a peer-facilitated, recovery-focused self-illness management program for adults with first-episode psychosis: A randomized controlled trial.</li>
+                    <li>Arbeitsgemeinschaft der Wissenschaftlichen Medizinischen Fachgesellschaften. (2025). S3-Leitlinie Schizophrenie.</li>
+                </ul>
+            </div>
         </div>
 
         <div class="card">
-            <h3>Substanzkonsum</h3>
-            <p class="placeholder-text">Inhalt folgt.</p>
+            <h3>🍺 Substanzkonsum</h3>
+            <p>Alkohol und Drogen können eine Psychose beeinflussen und das Risiko für einen Rückfall erhöhen. Sie können zudem die Wirkung deiner Medikamente verändern oder psychotische Symptome verstärken.</p>
+            <p>Ein bewusster Umgang mit Alkohol und der Verzicht auf Drogen können deshalb dazu beitragen, deine psychische Gesundheit zu schützen.</p>
+            <div class="quellen">
+                <p class="quellen-titel">Quelle</p>
+                <ul>
+                    <li>Arbeitsgemeinschaft der Wissenschaftlichen Medizinischen Fachgesellschaften. (2025). S3-Leitlinie Schizophrenie.</li>
+                </ul>
+            </div>
         </div>
 
         <div class="card">
-            <h3>Wichtige Hinweise zu Medikamenten</h3>
-            <p class="placeholder-text">Inhalt folgt.</p>
+            <h3>💊 Wichtige Hinweise zu Medikamenten</h3>
+            <p>Nimm deine Medikamente regelmässig und setze sie nicht eigenständig ab. Ein plötzliches Absetzen kann zu einer deutlichen Verschlechterung der Symptome führen. Falls Nebenwirkungen auftreten oder du Fragen hast, sprich mit deiner behandelnden Fachperson.</p>
+            <div style="background:#f0f4ff; border-radius:10px; padding:12px 14px; margin-top:12px;">
+                <p style="font-size:12px; font-weight:600; color:#4a7fe5; margin:0 0 8px 0;">Kurz zusammengefasst</p>
+                <ul style="margin:0; padding-left:18px; font-size:13px; color:#3a4a6a; line-height:1.7;">
+                    <li>Regelmässig einnehmen</li>
+                    <li>Nicht selbstständig absetzen</li>
+                    <li>Bei Nebenwirkungen die behandelnde Fachperson kontaktieren</li>
+                </ul>
+            </div>
+            <a href="medikamente.html" class="schlaf-hygiene-link" style="margin-top:12px;">
+                <div>
+                    <span>Medikamente verwalten</span>
+                    <em>Einnahme täglich dokumentieren</em>
+                </div>
+                <span style="font-size:20px;color:#4a7fe5;">›</span>
+            </a>
         </div>
 
         <div class="card">
-            <h3>Bewegung</h3>
-            <p class="placeholder-text">Inhalt folgt.</p>
+            <h3>🏃 Bewegung</h3>
+            <p>Regelmässige Bewegung kann dein Wohlbefinden fördern und dir im Alltag helfen. Schon ein kurzer Spaziergang oder eine andere Aktivität, die dir Freude macht, kann guttun.</p>
+            <p>Gleichzeitig lohnt es sich, auf Veränderungen zu achten. Wenn du dich plötzlich viel weniger bewegst als sonst oder dir alltägliche Aktivitäten schwerfallen, kann dies ein frühes Anzeichen dafür sein, dass sich dein psychischer Zustand verändert.</p>
+            <div class="quellen">
+                <p class="quellen-titel">Quelle</p>
+                <ul>
+                    <li>Lahti, A. C., Wang, D., Pei, H., Baker, S., &amp; Narayan, V. A. (2021). Clinical utility of wearable sensors and patient-reported surveys in patients with schizophrenia. <em>JMIR Mental Health, 8</em>(8), e26234.</li>
+                </ul>
+            </div>
         </div>
 
         <div class="card">
-            <h3>Soziale Kontakte</h3>
-            <p class="placeholder-text">Inhalt folgt.</p>
+            <h3>🤝 Soziale Kontakte</h3>
+            <p>Eine Psychose kann dazu führen, dass man sich von anderen Menschen zurückzieht oder weniger Kontakt haben möchte. Gerade dann können vertraute Menschen wie Familie oder Freunde eine wichtige Unterstützung sein. Sie kennen dich oft gut und bemerken Veränderungen in deinem Verhalten oder deiner Stimmung manchmal früher als du selbst. Dadurch können Frühwarnzeichen schneller erkannt und gemeinsam besprochen werden.</p>
+            <p>Auch Angehörige profitieren davon, wenn sie über die Erkrankung informiert sind. Sie fühlen sich sicherer im Umgang mit einer Psychose und wissen besser, wie sie dich unterstützen können. Deshalb kann es hilfreich sein, Menschen, denen du vertraust, in deine Behandlung oder in Gespräche über deine persönlichen Frühwarnzeichen einzubeziehen.</p>
+            <div class="quellen">
+                <p class="quellen-titel">Quellen</p>
+                <ul>
+                    <li>Kuipers, S. A., et al. (2025). Psychoeducation for relatives of young adults with first-episode psychosis: A qualitative exploration of needs and experiences. <em>Nursing Reports, 15</em>, 197.</li>
+                    <li>Lahti, A. C., Wang, D., Pei, H., Baker, S., &amp; Narayan, V. A. (2021). Clinical utility of wearable sensors and patient-reported surveys in patients with schizophrenia. <em>JMIR Mental Health, 8</em>(8), e26234.</li>
+                </ul>
+            </div>
         </div>
 
+        <!-- INAKTIV – Ernährung & Darm-Hirn-Achse (zum Reaktivieren Kommentar entfernen)
         <div class="card">
             <h3>🥦 Ernährung & Darm-Hirn-Achse</h3>
             <p style="font-size: 13px; color: #888; margin: 0 0 12px 0;">Warum Ernährung und psychische Gesundheit eng zusammenhängen.</p>
@@ -58,13 +124,14 @@
             </div>
             <p class="placeholder-text" style="margin-top: 16px;">Weiterer Inhalt folgt.</p>
         </div>
+        -->
 
         <nav class="bottom-nav">
             <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></a>
-            <a href="verlauf.html" class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">Verlauf</span></a>
+            <a href="verlauf.html" class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">Tagebuch</span></a>
             <a href="wissen.html" class="nav-item active"><span class="nav-icon">📖</span><span class="nav-label">Wissen</span></a>
             <a href="medikamente.html" class="nav-item"><span class="nav-icon">💊</span><span class="nav-label">Medikamente</span></a>
-            <a href="krisenplan.html" class="nav-item"><span class="nav-icon">🆘</span><span class="nav-label">Krisenplan</span></a>
+            <a href="krisenplan.html" class="nav-item"><span class="nav-icon">🆘</span><span class="nav-label">Notfall</span></a>
         </nav>
 
     </body>
